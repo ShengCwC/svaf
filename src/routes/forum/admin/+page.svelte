@@ -23,7 +23,6 @@
 		saveAdminSettings,
 		scanAdminStorageGc,
 		sendAdminTestEmail,
-		toggleDrawBan,
 		updateAdminCategory,
 		updateAdminUser,
 		verifyAdminUser
@@ -49,8 +48,7 @@
 		notifyOnUsernameChange: false,
 		notifyOnAvatarChange: false,
 		notifyOnManualVerify: false,
-		sessionTtlDays: 7,
-		drawCooldownSeconds: 0
+		sessionTtlDays: 7
 	};
 
 	const emailTemplateOptions = [
@@ -432,22 +430,6 @@
 		}
 	}
 
-	async function toggleDrawBanAction(userId: string) {
-		if (userActionBusyId || savingUserId) return;
-		userActionBusyId = userId;
-		userActionType = 'draw-ban';
-		try {
-			const r = await toggleDrawBan(userId);
-			await refreshData();
-			emitSuccessToast('用户管理', r.message || '生图权限已更新。', false);
-		} catch (e) {
-			emitErrorToast('用户管理', getErrorMessage(e, '生图权限操作失败。'));
-		} finally {
-			userActionBusyId = '';
-			userActionType = '';
-		}
-	}
-
 	let gcOrphans = $derived(storageGcResult?.orphans || []);
 	let gcCount = $derived(storageGcResult?.orphaned_files ?? gcOrphans.length);
 
@@ -601,16 +583,6 @@
 									min="1"
 									max="365"
 									bind:value={settings.sessionTtlDays}
-								/>
-							</div>
-							<div class="space-y-2">
-								<Label for="draw-cooldown">生图冷却秒数（0 = 不限制）</Label>
-								<Input
-									id="draw-cooldown"
-									type="number"
-									min="0"
-									max="3600"
-									bind:value={settings.drawCooldownSeconds}
 								/>
 							</div>
 							<Button onclick={saveSettingsAction}>
@@ -915,9 +887,6 @@
 												{#if forumUser.totpEnabled}
 													<Badge variant="secondary">2FA</Badge>
 												{/if}
-												{#if forumUser.drawBanned}
-													<Badge variant="destructive">禁止生图</Badge>
-												{/if}
 											</div>
 											<div class="mt-1 break-all text-sm text-muted-foreground">
 												{forumUser.email || '-'}
@@ -961,17 +930,6 @@
 															: '手动通过'}
 													</Button>
 												{/if}
-												<Button
-													variant={forumUser.drawBanned ? 'outline' : 'secondary'}
-													size="sm"
-													onclick={() => toggleDrawBanAction(forumUser.id)}
-													disabled={userActionBusyId === forumUser.id || Boolean(editingUserId)}
-												>
-													<Icon icon={forumUser.drawBanned ? 'mdi:brush' : 'mdi:cancel'} class="size-4" />
-													{userActionBusyId === forumUser.id && userActionType === 'draw-ban'
-														? '处理中...'
-														: forumUser.drawBanned ? '解禁生图' : '禁止生图'}
-												</Button>
 												<Button
 													variant="destructive"
 													size="sm"

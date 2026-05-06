@@ -178,7 +178,7 @@
 			</Button>
 		</a>
 
-		<a href="/forum/draw">
+		<a href="https://ai.2x.nz" target="_blank" rel="noopener noreferrer">
 			<Button variant="outline" class="flex items-center gap-2">
 				<Icon icon="mdi:palette" class="w-5 h-5" />
 				AI 生图

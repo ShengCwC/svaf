@@ -21,7 +21,6 @@ export interface ForumUser {
 	githubLogin?: string | null;
 	githubAvatarUrl?: string | null;
 	hasPassword?: boolean;
-	drawBanned?: boolean;
 }
 
 export interface LoginPayload {
