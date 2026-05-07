@@ -189,10 +189,9 @@
 			const pathHasAll = searchFilters.path && terms.every((t) => slug.includes(t));
 			const contentHasAll = searchFilters.content && terms.every((t) => content.includes(t));
 
-			const matchedLines =
-				contentHasAll && !titleHasAll && !descHasAll && !pathHasAll
-					? getMatchedContentLines(rssPost.content, searchQuery)
-					: [];
+			const matchedLines = contentHasAll
+				? getMatchedContentLines(rssPost.content, searchQuery)
+				: [];
 			results.push({ post, matchedLines });
 		}
 
