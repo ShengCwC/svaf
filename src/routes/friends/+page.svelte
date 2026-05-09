@@ -59,7 +59,7 @@
 						<p class="font-semibold">申请方式：</p>
 						<div class="space-y-1 text-muted-foreground">
 							<p>1. Fork 本仓库：<a href={siteConfig.links.github} target="_blank" rel="noopener noreferrer" class="text-primary underline">github.com/afoim/svaf</a></p>
-							<p>2. 在 <code class="rounded bg-muted px-1 py-0.5">static/friends/lists/</code> 目录下创建 JSON 文件（<a href="{siteConfig.links.github}/tree/main/static/friends/lists" target="_blank" rel="noopener noreferrer" class="text-primary underline">查看目录</a>）</p>
+							<p>2. 在 <code class="rounded bg-muted px-1 py-0.5">src/data/friends/</code> 目录下创建 JSON 文件（<a href="{siteConfig.links.github}/tree/main/src/data/friends" target="_blank" rel="noopener noreferrer" class="text-primary underline">查看目录</a>）</p>
 							<p>3. 文件格式：</p>
 							<pre class="mt-2 rounded bg-muted p-3 text-xs"><code>{`{
   "name": "你的网站名称",
