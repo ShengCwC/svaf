@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { spaCache } from '$lib/utils/spaCache';
 	import { siteConfig } from '$lib/config/site';
+	import { fly } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 
 	let {
 		pathname,
@@ -42,7 +44,7 @@
 </script>
 
 {#if pageViews !== null}
-	<span class={className}>
+	<span class={className} transition:fly={{ y: 8, duration: 350, easing: quintOut }}>
 		{pageViews.toLocaleString()} 次浏览
 	</span>
 {/if}
