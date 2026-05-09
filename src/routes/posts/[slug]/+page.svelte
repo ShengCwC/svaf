@@ -192,8 +192,7 @@
 	<!-- 文章内容 - 使用 mdsvex 组件 -->
 	<div
 		bind:this={proseEl}
-		class="prose prose-neutral dark:prose-invert max-w-none break-words [overflow-wrap:anywhere] mo-fade-in"
-		use:fadeIn={{ delay: 0.15 }}
+		class="prose prose-neutral dark:prose-invert max-w-none break-words [overflow-wrap:anywhere] mo-fade-in
 			prose-headings:text-foreground
 			prose-p:text-foreground
 			prose-strong:text-foreground
@@ -205,6 +204,7 @@
 			prose-th:border prose-th:border-border prose-th:bg-muted
 			prose-td:border prose-td:border-border
 			prose-img:rounded-lg"
+		use:fadeIn={{ delay: 0.15 }}
 	>
 		<data.component />
 	</div>
