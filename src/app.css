@@ -169,6 +169,14 @@
 	.markdown-alert-caution { --alert-color: var(--destructive); }
 }
 
+/* 隐藏代码块滚动条（Shift+滚轮 / 触屏仍可滚动） */
+pre::-webkit-scrollbar {
+	display: none;
+}
+pre {
+	scrollbar-width: none;
+}
+
 /* Motion One 初始隐藏状态（paint 前生效，避免闪烁） */
 .mo-fade-in-up,
 .mo-fade-in,
