@@ -8,6 +8,7 @@
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
 	import { slide } from 'svelte/transition';
+	import { staggerChildren } from '$lib/utils/motion';
 	import { quintOut } from 'svelte/easing';
 	import { spaCache } from '$lib/utils/spaCache';
 	import type { PageData } from './$types';
@@ -344,7 +345,7 @@
 		{/if}
 	</div>
 
-	<div class="space-y-6">
+	<div class="space-y-6 mo-stagger" use:staggerChildren>
 		{#each paginatedPosts as { post, matchedLines }}
 			<a href="/posts/{post.slug}" class="block">
 				<Card.Root class="group transition-all hover:shadow-lg">
