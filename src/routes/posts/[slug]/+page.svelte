@@ -9,7 +9,8 @@
 	import PageViews from '$lib/components/PageViews.svelte';
 	import PostToc from '$lib/components/PostToc.svelte';
 	import { highlightCodeBlocksIn } from '$lib/utils/highlight';
-	import { renderMermaidIn } from '$lib/utils/mermaid';
+	import { renderMermaidIn, rerenderAllMermaid } from '$lib/utils/mermaid';
+	import { isDark } from '$lib/stores/theme';
 	import { fadeInUp, fadeIn } from '$lib/utils/motion';
 	import type { PageData } from './$types';
 
@@ -118,6 +119,12 @@
 				setTimeout(scrollToFirstMatch, 100);
 			}
 		})();
+	});
+
+	// 主题切换时重新渲染 mermaid
+	$effect(() => {
+		void $isDark;
+		rerenderAllMermaid();
 	});
 </script>
 
