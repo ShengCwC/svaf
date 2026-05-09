@@ -7,6 +7,8 @@
 	import { onMount } from 'svelte';
 	import { spaCache } from '$lib/utils/spaCache';
 	import { fadeInUp, staggerChildren, fadeIn } from '$lib/utils/motion';
+	import { slide } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 	import PageViews from '$lib/components/PageViews.svelte';
 	import TimetableCard from '$lib/components/TimetableCard.svelte';
 	import SponsorBanners from '$lib/components/SponsorBanners.svelte';
@@ -14,6 +16,7 @@
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	
 	let isLive = $state<boolean>(false);
+	let pageViewsLoaded = $state(false);
 	
 	async function checkLiveStatus() {
 		isLive = await spaCache.get('live-status', async () => {
@@ -143,9 +146,18 @@
 	<div class="text-center mo-fade-in-up" use:fadeInUp={{ delay: 0.1 }}>
 		<h1 class="text-4xl font-bold mb-2">{siteConfig.bio.name}</h1>
 		<p class="text-lg text-muted-foreground mb-4">{siteConfig.bio.bio}</p>
-		<p class="text-sm text-muted-foreground">
-			全站浏览量: <PageViews pathname="/" cacheKey="homepage-pageviews" />
-		</p>
+		{#if !pageViewsLoaded}
+			<div style="position:absolute;pointer-events:none;" aria-hidden="true">
+				<PageViews pathname="/" cacheKey="homepage-pageviews" onloaded={() => pageViewsLoaded = true} />
+			</div>
+		{/if}
+		{#if pageViewsLoaded}
+			<div transition:slide={{ duration: 350, easing: quintOut }}>
+				<p class="text-sm text-muted-foreground">
+					全站浏览量: <PageViews pathname="/" cacheKey="homepage-pageviews" />
+				</p>
+			</div>
+		{/if}
 	</div>
 
 	<!-- 课程表卡片 -->

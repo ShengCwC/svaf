@@ -7,11 +7,13 @@
 	let {
 		pathname,
 		cacheKey,
-		class: className = ''
+		class: className = '',
+		onloaded
 	}: {
 		pathname: string;
 		cacheKey?: string;
 		class?: string;
+		onloaded?: () => void;
 	} = $props();
 
 	let pageViews = $state<number | null>(null);
@@ -33,6 +35,7 @@
 			}
 			return 0;
 		});
+		onloaded?.();
 	}
 
 	$effect(() => {
