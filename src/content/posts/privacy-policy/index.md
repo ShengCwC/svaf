@@ -1,10 +1,11 @@
 ---
 title: 隐私政策
-published: 1998-12-31T19:20:15
-description: 本隐私政策适用于AcoFork Blog（以下简称“我们”）。
-image: "img/privacy-policy.png"
+published: 2026-05-09T00:00:00
+description: 本隐私政策适用于AcoFork Blog（以下简称”我们”）。
+image: “img/privacy-policy.png”
 draft: false
-lang: ""
+hide: true
+lang: “”
 ---
 
 # All Cookies
@@ -24,5 +25,3 @@ lang: ""
 
 ### Targeting and advertising cookies（定位和廣告cookies）
 - 无
-
-*latest update: 2026/05/07*

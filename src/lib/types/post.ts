@@ -5,6 +5,7 @@ export interface PostMetadata {
 	pinned: boolean;
 	description: string;
 	draft?: boolean;
+	hide?: boolean;
 	updated?: string;
 }
 

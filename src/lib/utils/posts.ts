@@ -4,9 +4,9 @@ import type { Post, PostMetadata } from '$lib/types/post';
 const postModules = import.meta.glob('/src/content/posts/**/index.md', { eager: true });
 
 /**
- * 获取所有文章
+ * 获取所有文章（含隐藏）
  */
-export function getAllPosts(): Post[] {
+function fetchAllPosts(): Post[] {
 	const posts: Post[] = [];
 
 	for (const [path, module] of Object.entries(postModules)) {
@@ -33,11 +33,17 @@ export function getAllPosts(): Post[] {
 }
 
 /**
+ * 获取文章列表（不含 hide 文章）
+ */
+export function getAllPosts(): Post[] {
+	return fetchAllPosts().filter((post) => !post.metadata.hide);
+}
+
+/**
  * 根据 slug 获取单篇文章
  */
 export function getPostBySlug(slug: string): Post | undefined {
-	const posts = getAllPosts();
-	return posts.find((post) => post.slug === slug);
+	return fetchAllPosts().find((post) => post.slug === slug);
 }
 
 /**
