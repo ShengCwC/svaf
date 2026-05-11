@@ -117,7 +117,7 @@
 		<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4">
 			{#if images[index].creator_id}
 				<a
-					href={`/forum/u/${images[index].creator_id}`}
+					href={`/forum/u/?id=${images[index].creator_id}`}
 					target="_blank"
 					class="text-white/90 text-sm bg-white/10 px-3 py-1.5 rounded hover:bg-white/20 transition-colors"
 				>
