@@ -39,7 +39,7 @@
 	} = $props();
 
 	let resolutions = $state<DrawResolution[]>([]);
-	let selectedRes = $state('');
+	let selectedRes = $derived(width && height ? `${width}x${height}` : '');
 	let promptsOpen = $state(false);
 
 	$effect(() => {
@@ -54,7 +54,6 @@
 				const first = resolutions[0];
 				width = first.w;
 				height = first.h;
-				selectedRes = `${first.w}x${first.h}`;
 			}
 		} catch {
 			resolutions = [];
@@ -64,7 +63,6 @@
 	function selectRes(r: DrawResolution) {
 		width = r.w;
 		height = r.h;
-		selectedRes = `${r.w}x${r.h}`;
 	}
 
 	function handleSubmit() {
