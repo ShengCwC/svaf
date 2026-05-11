@@ -81,7 +81,6 @@
 		<textarea
 			bind:value={nlPrompt}
 			rows={3}
-			{disabled}
 			placeholder="一个蓝发少女站在花园里..."
 			class="w-full rounded-md border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
 		></textarea>
@@ -111,7 +110,6 @@
 					<textarea
 						bind:value={directPrompt}
 						rows={3}
-						{disabled}
 						placeholder="1girl, blue_hair, garden, masterpiece, best quality..."
 						class="w-full rounded-md border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
 					></textarea>
@@ -124,7 +122,6 @@
 					<textarea
 						bind:value={negativePrompt}
 						rows={3}
-						{disabled}
 						placeholder="bad hands, too many fingers, long neck, poorly drawn..."
 						class="w-full rounded-md border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
 					></textarea>
@@ -136,7 +133,7 @@
 	<!-- Options row -->
 	<div class="flex flex-wrap items-center gap-4">
 		<label class="flex items-center gap-2 text-xs cursor-pointer">
-			<Checkbox bind:checked={rewrite} {disabled} />
+<Checkbox bind:checked={rewrite} />
 			<span>改写模式</span>
 			<button
 				class="text-muted-foreground hover:text-foreground"
@@ -156,7 +153,7 @@
 					type="button"
 					class="px-2 py-1 rounded text-xs border transition-all {safetyRating === r.value ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:bg-accent'}"
 					onclick={() => (safetyRating = r.value)}
-					{disabled}
+
 				>
 					{r.label}
 				</button>
@@ -174,7 +171,7 @@
 					<button
 						class="px-2 py-1 rounded text-xs border transition-all {selectedRes === key ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:bg-accent'}"
 						onclick={() => selectRes(r)}
-						{disabled}
+
 					>
 						{r.label || key}
 					</button>
