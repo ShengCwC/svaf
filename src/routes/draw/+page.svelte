@@ -11,7 +11,7 @@
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { drawEnv } from '$lib/draw/stores/env';
 	import { connectRunWs, connectStatusWs } from '$lib/draw/api/ws';
-	import { fetchMyImages, getImageUrl, getImageProxyUrl } from '$lib/draw/api/client';
+	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage } from '$lib/draw/api/client';
 	import type { WsRunMessage, WsStatusEvent, WsRunPayload, DrawWorkflow } from '$lib/draw/types';
 
 	import EnvironmentSwitcher from '$lib/components/draw/EnvironmentSwitcher.svelte';
@@ -43,6 +43,7 @@
 	let rewrite = $state(true);
 	let width = $state(0);
 	let height = $state(0);
+	let inlineWorkflow = $state<object | null>(null);
 
 	// Progress state
 	let progressMessages = $state<WsRunMessage[]>([]);
@@ -110,6 +111,7 @@
 	function handleWorkflowSelect(wf: DrawWorkflow) {
 		workflowPath = wf.path;
 		workflowName = wf.path.replace('.json', '');
+		inlineWorkflow = null;
 	}
 
 	function handleStyleSelect(tags: string, name: string) {
@@ -120,6 +122,22 @@
 	function handlePromptLoad(positive: string, negative: string) {
 		directPrompt = positive;
 		negativePrompt = negative;
+	}
+
+	async function handleFork(path: string) {
+		try {
+			const res = await forkOutputImage(path);
+			inlineWorkflow = res.workflow;
+			if (res.builtin_prompt) directPrompt = res.builtin_prompt;
+			if (res.builtin_negative_prompt) negativePrompt = res.builtin_negative_prompt;
+			if (res.default_width) width = res.default_width;
+			if (res.default_height) height = res.default_height;
+			workflowPath = '';
+			workflowName = '(fork)';
+			activeTab = 'generate';
+		} catch (e) {
+			alert(e instanceof Error ? e.message : 'Fork 失败');
+		}
 	}
 
 	function startGeneration() {
@@ -141,6 +159,7 @@
 		const payload: WsRunPayload = {
 			token: authToken,
 			workflow_path: workflowPath,
+			inline_workflow: inlineWorkflow || undefined,
 			direct_prompt: directPrompt,
 			nl_prompt: nlPrompt || undefined,
 			rewrite,
@@ -211,6 +230,21 @@
 				height: img?.naturalHeight || 1200,
 				alt: img?.alt || ''
 			};
+		});
+		myLightbox.on('uiRegister', () => {
+			myLightbox.pswp.ui.registerElement({
+				name: 'fork-button',
+				order: 9,
+				isButton: true,
+				html: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/><path d="M12 12v3"/></svg>',
+				onClick: () => {
+					const src = myLightbox.pswp.currSlideData?.src;
+					if (!src) return;
+					const p = new URL(src, location.origin).searchParams.get('path');
+					if (p) handleFork(p);
+					myLightbox.pswp.close();
+				}
+			});
 		});
 		myLightbox.init();
 	}
@@ -305,13 +339,13 @@
 				busy={isGenerating}
 			/>
 
-			<ResultGrid images={resultImages} />
+			<ResultGrid images={resultImages} onFork={handleFork} />
 		</TabsContent>
 
 		<!-- Gallery Tab -->
 		<TabsContent value="gallery" class="mt-4">
 			{#if activeTab === 'gallery'}
-				<GalleryTab />
+				<GalleryTab onFork={handleFork} />
 			{/if}
 		</TabsContent>
 
@@ -371,7 +405,7 @@
 		<!-- Featured Tab -->
 		<TabsContent value="featured" class="mt-4">
 			{#if activeTab === 'featured'}
-				<FeaturedTab />
+				<FeaturedTab onFork={handleFork} />
 			{/if}
 		</TabsContent>
 

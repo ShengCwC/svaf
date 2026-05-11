@@ -143,6 +143,19 @@ export async function fetchFeatured() {
 	return drawRequest<import('../types').DrawFeaturedResponse>('/api/output/featured');
 }
 
+export async function forkOutputImage(path: string) {
+	return drawRequest<{
+		workflow: object;
+		summary: Record<string, unknown>;
+		default_width: number | null;
+		default_height: number | null;
+		builtin_prompt: string;
+		builtin_negative_prompt: string;
+		loras: string[];
+		format: string;
+	}>('/api/output/fork', { method: 'POST', json: { path } });
+}
+
 function _appendToken(url: URL): string {
 	const token = forumAuth.getToken();
 	if (token) url.searchParams.set('token', token);
