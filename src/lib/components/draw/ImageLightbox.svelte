@@ -121,7 +121,7 @@
 					target="_blank"
 					class="text-white/90 text-sm bg-white/10 px-3 py-1.5 rounded hover:bg-white/20 transition-colors"
 				>
-					生图者: {creatorName || `UID:${images[index].creator_id}`}
+					生图者: {creatorName ? `${creatorName} (UID:${images[index].creator_id})` : `UID:${images[index].creator_id}`}
 				</a>
 			{/if}
 			{#if onfork}
