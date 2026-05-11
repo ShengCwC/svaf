@@ -17,7 +17,6 @@
 	import StyleDialog from '$lib/components/draw/StyleDialog.svelte';
 	import PromptForm from '$lib/components/draw/PromptForm.svelte';
 	import ProgressPanel from '$lib/components/draw/ProgressPanel.svelte';
-	import ResultGrid from '$lib/components/draw/ResultGrid.svelte';
 	import FeaturedTab from '$lib/components/draw/FeaturedTab.svelte';
 	import StatusMonitor from '$lib/components/draw/StatusMonitor.svelte';
 	import ImageLightbox from '$lib/components/draw/ImageLightbox.svelte';
@@ -349,9 +348,9 @@
 				bind:messages={progressMessages}
 				visible={showProgress}
 				busy={isGenerating}
+				bind:resultImages
+				onFork={handleFork}
 			/>
-
-			<ResultGrid images={resultImages} onFork={handleFork} />
 		</TabsContent>
 
 		<!-- My Images Tab -->

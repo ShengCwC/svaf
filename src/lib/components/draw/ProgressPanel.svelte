@@ -1,16 +1,22 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { Badge } from '$lib/components/ui/badge';
+	import { getImageProxyUrl, getImageUrl } from '$lib/draw/api/client';
+	import ImageLightbox from '$lib/components/draw/ImageLightbox.svelte';
 	import type { WsRunMessage } from '$lib/draw/types';
 
 	let {
 		messages = [],
 		visible = false,
-		busy = false
+		busy = false,
+		resultImages = [],
+		onFork
 	}: {
 		messages?: WsRunMessage[];
 		visible?: boolean;
 		busy?: boolean;
+		resultImages?: { url: string; filename: string }[];
+		onFork?: (path: string) => void;
 	} = $props();
 
 	let llmText = $state('');
@@ -24,6 +30,16 @@
 	let logLines = $state<string[]>([]);
 	let previewSrc = $state('');
 	let lastProcessed = $state(0);
+	let lbOpen = $state(false);
+	let lbIndex = $state(0);
+	let lbImages = $derived(resultImages.map((img) => ({ src: getImageUrl(img.filename), creator_id: '' })));
+
+	const progressPercent = $derived(progressMax > 0 ? Math.round((progressValue / progressMax) * 100) : 0);
+
+	function openLightbox(i: number) {
+		lbIndex = i;
+		lbOpen = true;
+	}
 
 	$effect(() => {
 		if (messages.length <= lastProcessed) return;
@@ -71,28 +87,29 @@
 		}
 		lastProcessed = messages.length;
 	});
-
-	export function reset() {
-		llmText = '';
-		llmVisible = false;
-		progressNode = '';
-		progressValue = 0;
-		progressMax = 0;
-		progressDone = 0;
-		progressTotal = 0;
-		progressText = '';
-		logLines = [];
-		previewSrc = '';
-		lastProcessed = 0;
-	}
-
-	const progressPercent = $derived(progressMax > 0 ? Math.round((progressValue / progressMax) * 100) : 0);
 </script>
 
 {#if visible}
 	<div class="space-y-3">
-		<!-- Preview image -->
-		{#if previewSrc}
+		<!-- Preview image (during generation) or final results -->
+		{#if resultImages.length > 0}
+			<div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+				{#each resultImages as img, i}
+					<button
+						type="button"
+						class="aspect-square rounded-lg overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer"
+						onclick={() => openLightbox(i)}
+					>
+						<img
+							src={getImageProxyUrl(img.filename)}
+							alt={img.filename}
+							class="w-full h-full object-cover"
+							loading="lazy"
+						/>
+					</button>
+				{/each}
+			</div>
+		{:else if previewSrc}
 			<div class="rounded-lg overflow-hidden border">
 				<img src={previewSrc} alt="预览" class="w-full max-h-64 object-contain" loading="lazy" />
 			</div>
@@ -146,6 +163,14 @@
 		{/if}
 	</div>
 {/if}
+
+<ImageLightbox
+	open={lbOpen}
+	images={lbImages}
+	index={lbIndex}
+	onclose={() => (lbOpen = false)}
+	onfork={onFork}
+/>
 
 <style>
 	summary::-webkit-details-marker {
