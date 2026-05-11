@@ -8,9 +8,9 @@
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { drawEnv } from '$lib/draw/stores/env';
 	import { connectRunWs, connectStatusWs } from '$lib/draw/api/ws';
-	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage } from '$lib/draw/api/client';
+	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage, recommendImage, fetchMyRecommendations } from '$lib/draw/api/client';
 	import { consumeFork } from '$lib/draw/stores/fork';
-	import type { WsRunMessage, WsStatusEvent, WsRunPayload, DrawWorkflow } from '$lib/draw/types';
+	import type { WsRunMessage, WsStatusEvent, WsRunPayload, DrawWorkflow, DrawRecommendation } from '$lib/draw/types';
 
 	import EnvironmentSwitcher from '$lib/components/draw/EnvironmentSwitcher.svelte';
 	import WorkflowSelector from '$lib/components/draw/WorkflowSelector.svelte';
@@ -18,7 +18,6 @@
 	import PromptForm from '$lib/components/draw/PromptForm.svelte';
 	import ProgressPanel from '$lib/components/draw/ProgressPanel.svelte';
 	import ResultGrid from '$lib/components/draw/ResultGrid.svelte';
-	import GalleryTab from '$lib/components/draw/GalleryTab.svelte';
 	import FeaturedTab from '$lib/components/draw/FeaturedTab.svelte';
 	import StatusMonitor from '$lib/components/draw/StatusMonitor.svelte';
 	import ImageLightbox from '$lib/components/draw/ImageLightbox.svelte';
@@ -60,12 +59,22 @@
 	let myLbIndex = $state(0);
 	let myLbImages = $derived(myImages.map((it) => ({ src: getImageUrl(it.path), creator_id: '' })));
 
+	// Recommendations
+	let myRecommendations = $state<DrawRecommendation[]>([]);
+	let myRecsLoaded = $state(false);
+
 	// WebSocket refs
 	let statusConn: ReturnType<typeof connectStatusWs> | null = null;
 	let runWs: WebSocket | null = null;
 
 	// Tab state
 	let activeTab = $state('generate');
+
+	$effect(() => {
+		if (activeTab === 'mine' && isLoggedIn && !myRecsLoaded) {
+			loadMyRecommendations();
+		}
+	});
 
 	$effect(() => {
 		const u1 = drawEnv.baseUrl.subscribe((v) => (currentBaseUrl = v));
@@ -226,6 +235,35 @@
 			myImagesLoading = false;
 		}
 	}
+
+	async function loadMyRecommendations() {
+		try {
+			const res = await fetchMyRecommendations();
+			myRecommendations = res.items;
+			myRecsLoaded = true;
+		} catch {
+			myRecommendations = [];
+		}
+	}
+
+	async function handleRecommend(path: string) {
+		try {
+			await recommendImage(path);
+			alert('自荐成功，等待管理员审核');
+			loadMyRecommendations();
+		} catch (e) {
+			alert(e instanceof Error ? e.message : '自荐失败');
+		}
+	}
+
+	function recStatusBadge(status: string) {
+		switch (status) {
+			case 'pending': return '⏳ 待审核';
+			case 'approved': return '✅ 已通过';
+			case 'rejected': return '❌ 已拒绝';
+			default: return status;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -275,10 +313,6 @@
 				<Icon icon="mdi:sparkles" class="size-4 mr-1" />
 				生成
 			</TabsTrigger>
-			<TabsTrigger value="gallery" class="flex-1">
-				<Icon icon="mdi:image-multiple-outline" class="size-4 mr-1" />
-				画廊
-			</TabsTrigger>
 			<TabsTrigger value="mine" class="flex-1">
 				<Icon icon="mdi:account-outline" class="size-4 mr-1" />
 				我的
@@ -318,13 +352,6 @@
 			/>
 
 			<ResultGrid images={resultImages} onFork={handleFork} />
-		</TabsContent>
-
-		<!-- Gallery Tab -->
-		<TabsContent value="gallery" class="mt-4">
-			{#if activeTab === 'gallery'}
-				<GalleryTab onFork={handleFork} />
-			{/if}
 		</TabsContent>
 
 		<!-- My Images Tab -->
@@ -376,6 +403,34 @@
 								{/each}
 							</div>
 						{/if}
+
+					<!-- 自荐区 -->
+					<div class="space-y-2 mt-4">
+						<h3 class="text-sm font-medium flex items-center gap-1.5">
+							<Icon icon="mdi:star-plus-outline" class="size-4" />
+							我的自荐
+						</h3>
+						{#if !myRecsLoaded}
+							<Button variant="outline" size="sm" onclick={loadMyRecommendations}>加载自荐记录</Button>
+						{:else if myRecommendations.length === 0}
+							<div class="text-xs text-muted-foreground">暂无自荐记录</div>
+						{:else}
+							<div class="space-y-1.5">
+								{#each myRecommendations as rec}
+									<div class="flex items-center gap-2 text-xs">
+										<img src={getImageProxyUrl(rec.image_path)} alt="" class="size-10 rounded object-cover border" />
+										<span class="truncate flex-1">{rec.image_path}</span>
+										<Badge variant={rec.status === "approved" ? "default" : rec.status === "rejected" ? "destructive" : "secondary"} class="text-[10px]">
+											{recStatusBadge(rec.status)}
+										</Badge>
+									</div>
+									{#if rec.admin_reason}
+										<div class="text-[10px] text-muted-foreground ml-12">管理员: {rec.admin_reason}</div>
+									{/if}
+								{/each}
+							</div>
+						{/if}
+					</div>
 					</div>
 				{/if}
 			{/if}
@@ -384,7 +439,16 @@
 		<!-- Featured Tab -->
 		<TabsContent value="featured" class="mt-4">
 			{#if activeTab === 'featured'}
-				<FeaturedTab onFork={handleFork} />
+				{#if !isLoggedIn}
+					<Alert>
+						<Icon icon="mdi:account-alert-outline" class="size-4" />
+						<AlertDescription class="text-xs">
+							请先<a href="/forum/auth/login" class="underline font-medium">登录论坛</a>查看精选图片。
+						</AlertDescription>
+					</Alert>
+				{:else}
+					<FeaturedTab onFork={handleFork} />
+				{/if}
 			{/if}
 		</TabsContent>
 
@@ -403,4 +467,5 @@
 	index={myLbIndex}
 	onclose={() => (myLbOpen = false)}
 	onfork={handleFork}
+	onrecommend={handleRecommend}
 />

@@ -18,7 +18,6 @@
 	import ImageLightbox from '$lib/components/draw/ImageLightbox.svelte';
 	import type {
 		AdminRecentImage,
-		AdminReport,
 		AdminLimits,
 		AdminMaintenance,
 		AdminAnnouncement,
@@ -45,9 +44,6 @@
 	let recentLimit = $state(50);
 	let selectedPaths = $state<Set<string>>(new Set());
 	let searchUserId = $state('');
-
-	// Reports
-	let reports = $state<AdminReport[]>([]);
 
 	// Recommendations
 	let recommendations = $state<DrawRecommendation[]>([]);
@@ -262,31 +258,6 @@
 			selectedPaths = new Set();
 		} else {
 			selectedPaths = new Set(recentImages.map((i) => i.path));
-		}
-	}
-
-	async function loadReports() {
-		loading = true;
-		try {
-			const res = await admin.getReports();
-			reports = res.reports;
-		} catch (e) {
-			showMsg('error', e instanceof Error ? e.message : '加载失败');
-		} finally {
-			loading = false;
-		}
-	}
-
-	async function handleResolveReport(id: string, action: 'delete' | 'ban_creator' | 'ban_reporter' | 'dismiss') {
-		loading = true;
-		try {
-			await admin.resolveReport(id, action);
-			showMsg('success', `举报已处理：${action}`);
-			reports = reports.filter((r) => r.id !== id);
-		} catch (e) {
-			showMsg('error', e instanceof Error ? e.message : '处理失败');
-		} finally {
-			loading = false;
 		}
 	}
 
@@ -715,9 +686,6 @@
 			case 'images':
 				if (recentImages.length === 0) loadRecent();
 				break;
-			case 'reports':
-				loadReports();
-				break;
 			case 'recommendations':
 				loadRecommendations();
 				break;
@@ -781,9 +749,6 @@
 				</TabsTrigger>
 				<TabsTrigger value="images" class="text-xs">
 					<Icon icon="mdi:image-multiple-outline" class="size-3.5 mr-1" />图片
-				</TabsTrigger>
-				<TabsTrigger value="reports" class="text-xs">
-					<Icon icon="mdi:flag-outline" class="size-3.5 mr-1" />举报
 				</TabsTrigger>
 				<TabsTrigger value="recommendations" class="text-xs">
 					<Icon icon="mdi:star-plus-outline" class="size-3.5 mr-1" />自荐
@@ -962,84 +927,6 @@
 						</div>
 					{/if}
 				{/if}
-			</TabsContent>
-
-			<!-- Reports -->
-			<TabsContent value="reports" class="mt-4">
-				<Card>
-					<CardHeader>
-						<CardTitle class="text-base flex items-center gap-2">
-							举报管理
-							{#if reports.length > 0}
-								<Badge variant="destructive">{reports.length}</Badge>
-							{/if}
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<Button variant="outline" size="sm" onclick={loadReports} disabled={loading} class="mb-3">
-							<Icon icon="mdi:refresh" class="size-4 mr-1" />刷新
-						</Button>
-						{#if reports.length === 0}
-							<div class="text-sm text-muted-foreground py-4 text-center">无待处理举报</div>
-						{:else}
-							<div class="space-y-3">
-								{#each reports as r}
-									<div class="border rounded-lg p-3 space-y-2">
-										<div class="flex items-start justify-between gap-2">
-											<div class="space-y-1 min-w-0">
-												<div class="flex items-center gap-2">
-													<Badge variant="outline" class="text-xs">ID: {r.id.slice(0, 8)}</Badge>
-													<span class="text-xs text-muted-foreground">{formatTime(r.timestamp)}</span>
-												</div>
-												<div class="text-xs">
-													<span class="text-muted-foreground">图片：</span>
-													<span class="font-mono">{r.image_path}</span>
-													{#if !r.image_exists}
-														<Badge variant="secondary" class="ml-1 text-[10px]">已删除</Badge>
-													{/if}
-												</div>
-												<div class="text-xs">
-													<span class="text-muted-foreground">举报者：</span>{r.reporter_id}
-													<span class="text-muted-foreground ml-2">创作者：</span>{r.creator_id || '未知'}
-												</div>
-												<div class="text-xs">
-													<span class="text-muted-foreground">原因：</span>{r.reason}
-												</div>
-											</div>
-											{#if r.image_exists}
-												<button
-													class="shrink-0 size-12 rounded overflow-hidden border"
-													onclick={() => openLb(r.image_path)}
-												>
-													<img
-														src={getImageProxyUrl(r.image_path)}
-														alt=""
-														class="w-full h-full object-cover"
-														loading="lazy"
-													/>
-												</button>
-											{/if}
-										</div>
-										<div class="flex flex-wrap gap-1.5">
-											<Button size="sm" variant="destructive" onclick={() => handleResolveReport(r.id, 'delete')} disabled={loading}>
-												删除图片
-											</Button>
-											<Button size="sm" variant="outline" onclick={() => handleResolveReport(r.id, 'ban_creator')} disabled={loading}>
-												封禁创作者
-											</Button>
-											<Button size="sm" variant="outline" onclick={() => handleResolveReport(r.id, 'ban_reporter')} disabled={loading}>
-												封禁举报者
-											</Button>
-											<Button size="sm" variant="ghost" onclick={() => handleResolveReport(r.id, 'dismiss')} disabled={loading}>
-												忽略
-											</Button>
-										</div>
-									</div>
-								{/each}
-							</div>
-						{/if}
-					</CardContent>
-				</Card>
 			</TabsContent>
 
 			<!-- Recommendations -->
