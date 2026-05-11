@@ -28,6 +28,9 @@
 	let onlineCount = $state(0);
 	let globalBusy = $state(false);
 	let isGenerating = $state(false);
+	let otherNode = $state('');
+	let otherValue = $state(0);
+	let otherMax = $state(0);
 	let authToken = $state<string | null>(null);
 	let isLoggedIn = $derived(!!authToken);
 
