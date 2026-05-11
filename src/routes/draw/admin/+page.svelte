@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
+	import PhotoSwipe from 'photoswipe';
+	import 'photoswipe/style.css';
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
@@ -9,7 +11,6 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Switch } from '$lib/components/ui/switch';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Table from '$lib/components/ui/table';
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { drawEnv } from '$lib/draw/stores/env';
@@ -92,8 +93,15 @@
 	let wfUploadTarget = $state('');
 
 	// Lightbox
-	let lbOpen = $state(false);
-	let lbPath = $state('');
+	function openLb(path: string) {
+		const pswp = new PhotoSwipe({
+			dataSources: [{ src: getImageUrl(path), width: 1600, height: 1200, alt: path }],
+			index: 0,
+			bgOpacity: 0.9,
+			showHideAnimationType: 'fade'
+		});
+		pswp.init();
+	}
 
 	$effect(() => {
 		authToken = forumAuth.getToken();
@@ -875,7 +883,7 @@
 								<div class="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
 									<button
 										class="p-0.5 rounded bg-black/50 text-white hover:bg-black/70"
-										onclick={(e) => { e.stopPropagation(); lbPath = img.path; lbOpen = true; }}
+										onclick={(e) => { e.stopPropagation(); openLb(img.path); }}
 										title="查看"
 									>
 										<Icon icon="mdi:eye" class="size-3.5" />
@@ -949,7 +957,7 @@
 											{#if r.image_exists}
 												<button
 													class="shrink-0 size-12 rounded overflow-hidden border"
-													onclick={() => { lbPath = r.image_path; lbOpen = true; }}
+													onclick={() => openLb(r.image_path)}
 												>
 													<img
 														src={getImageProxyUrl(r.image_path)}
@@ -1010,7 +1018,7 @@
 									<div class="relative group">
 										<button
 											class="aspect-square rounded-md overflow-hidden border w-full"
-											onclick={() => { lbPath = path; lbOpen = true; }}
+											onclick={() => openLb(path)}
 										>
 											<img
 												src={getImageProxyUrl(path)}
@@ -1458,30 +1466,6 @@
 		</Tabs>
 	{/if}
 </div>
-
-<!-- Lightbox Dialog -->
-<Dialog.Root bind:open={lbOpen}>
-	<Dialog.Content class="max-w-3xl p-0 overflow-hidden">
-		{#if lbPath}
-			<img
-				src={getImageUrl(lbPath)}
-				alt={lbPath}
-				class="w-full max-h-[70vh] object-contain"
-				loading="lazy"
-			/>
-			<div class="px-4 py-2 border-t flex items-center justify-between">
-				<span class="text-xs font-mono truncate">{lbPath}</span>
-				<a
-					href={getImageUrl(lbPath, true)}
-					download
-					class="p-1.5 rounded hover:bg-muted"
-				>
-					<Icon icon="mdi:download" class="size-4" />
-				</a>
-			</div>
-		{/if}
-	</Dialog.Content>
-</Dialog.Root>
 
 {#snippet limitField(label: string, key: keyof AdminLimits, type: 'number' | 'text')}
 	{#if limits}

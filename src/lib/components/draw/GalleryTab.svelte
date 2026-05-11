@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import { onMount, onDestroy } from 'svelte';
+	import PhotoSwipeLightbox from 'photoswipe/lightbox';
+	import 'photoswipe/style.css';
 	import { fetchOutputList, getImageUrl, getImageProxyUrl } from '$lib/draw/api/client';
 	import type { DrawOutputItem } from '$lib/draw/types';
 
@@ -12,12 +14,29 @@
 	const limit = 30;
 	let hasMore = $derived(offset < total);
 
-	let lightboxOpen = $state(false);
-	let lightboxIndex = $state(0);
+	let galleryEl: HTMLElement;
+	let lightbox: PhotoSwipeLightbox | null = null;
+
+	function initLightbox() {
+		lightbox?.destroy();
+		if (!galleryEl) return;
+		lightbox = new PhotoSwipeLightbox({
+			gallery: galleryEl,
+			children: 'a',
+			pswpModule: () => import('photoswipe')
+		});
+		lightbox.init();
+	}
 
 	$effect(() => {
 		loadGallery();
 	});
+
+	onMount(() => {
+		queueMicrotask(initLightbox);
+	});
+
+	onDestroy(() => lightbox?.destroy());
 
 	async function loadGallery() {
 		loading = true;
@@ -40,27 +59,13 @@
 			const res = await fetchOutputList(limit, offset);
 			items = [...items, ...res.items];
 			offset += res.items.length;
+			queueMicrotask(initLightbox);
 		} catch {
 			// ignore
 		} finally {
 			loading = false;
 		}
 	}
-
-	function openLightbox(index: number) {
-		lightboxIndex = index;
-		lightboxOpen = true;
-	}
-
-	function prev() {
-		lightboxIndex = (lightboxIndex - 1 + items.length) % items.length;
-	}
-
-	function next() {
-		lightboxIndex = (lightboxIndex + 1) % items.length;
-	}
-
-	const currentItem = $derived(items[lightboxIndex]);
 </script>
 
 <div class="space-y-3">
@@ -78,11 +83,11 @@
 	{#if items.length === 0 && !loading}
 		<div class="text-xs text-muted-foreground py-8 text-center">暂无图片</div>
 	{:else}
-		<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
-			{#each items as item, i}
-				<button
-					class="aspect-square rounded-md overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all"
-					onclick={() => openLightbox(i)}
+		<div bind:this={galleryEl} class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
+			{#each items as item}
+				<a
+					href={getImageUrl(item.path)}
+					class="aspect-square rounded-md overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all block"
 				>
 					<img
 						src={getImageProxyUrl(item.path)}
@@ -90,7 +95,7 @@
 						class="w-full h-full object-cover"
 						loading="lazy"
 					/>
-				</button>
+				</a>
 			{/each}
 		</div>
 
@@ -106,41 +111,3 @@
 		{/if}
 	{/if}
 </div>
-
-<Dialog.Root bind:open={lightboxOpen}>
-	<Dialog.Content class="max-w-3xl p-0 overflow-hidden">
-		{#if currentItem}
-			<div class="relative">
-				<img
-					src={getImageUrl(currentItem.path)}
-					alt={currentItem.path}
-					class="w-full max-h-[70vh] object-contain"
-					loading="lazy"
-				/>
-				<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-					<div class="flex items-center justify-between text-white text-xs">
-						<span class="truncate">{currentItem.path}</span>
-						<a
-							href={getImageUrl(currentItem.path, true)}
-							download
-							class="p-1.5 rounded bg-white/20 hover:bg-white/30"
-						>
-							<Icon icon="mdi:download" class="size-4" />
-						</a>
-					</div>
-				</div>
-			</div>
-			{#if items.length > 1}
-				<div class="flex items-center justify-between px-3 py-2 border-t">
-					<Button variant="ghost" size="sm" onclick={prev}>
-						<Icon icon="mdi:chevron-left" class="size-5" />
-					</Button>
-					<span class="text-xs text-muted-foreground">{lightboxIndex + 1} / {items.length}</span>
-					<Button variant="ghost" size="sm" onclick={next}>
-						<Icon icon="mdi:chevron-right" class="size-5" />
-					</Button>
-				</div>
-			{/if}
-		{/if}
-	</Dialog.Content>
-</Dialog.Root>

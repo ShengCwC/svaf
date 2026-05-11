@@ -1,11 +1,13 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
+	import { onMount } from 'svelte';
+	import PhotoSwipeLightbox from 'photoswipe/lightbox';
+	import 'photoswipe/style.css';
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { drawEnv } from '$lib/draw/stores/env';
 	import { connectRunWs, connectStatusWs } from '$lib/draw/api/ws';
@@ -52,8 +54,8 @@
 	let myImagesTotal = $state(0);
 	let myImagesLoading = $state(false);
 	let myImagesLoaded = $state(false);
-	let myLbOpen = $state(false);
-	let myLbIndex = $state(0);
+	let myGalleryEl: HTMLElement;
+	let myLightbox: PhotoSwipeLightbox | null = null;
 
 	// WebSocket refs
 	let statusConn: ReturnType<typeof connectStatusWs> | null = null;
@@ -184,6 +186,7 @@
 			myImages = res.items;
 			myImagesTotal = res.total;
 			myImagesLoaded = true;
+			queueMicrotask(initMyLightbox);
 		} catch {
 			myImages = [];
 		} finally {
@@ -191,9 +194,15 @@
 		}
 	}
 
-	function openMyLb(index: number) {
-		myLbIndex = index;
-		myLbOpen = true;
+	function initMyLightbox() {
+		myLightbox?.destroy();
+		if (!myGalleryEl) return;
+		myLightbox = new PhotoSwipeLightbox({
+			gallery: myGalleryEl,
+			children: 'a',
+			pswpModule: () => import('photoswipe')
+		});
+		myLightbox.init();
 	}
 </script>
 
@@ -328,11 +337,11 @@
 						{:else if myImages.length === 0}
 							<div class="text-xs text-muted-foreground py-8 text-center">你还没有生成过图片</div>
 						{:else}
-							<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
-								{#each myImages as item, i}
-									<button
-										class="aspect-square rounded-md overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all"
-										onclick={() => openMyLb(i)}
+							<div bind:this={myGalleryEl} class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
+								{#each myImages as item}
+									<a
+										href={getImageUrl(item.path)}
+										class="aspect-square rounded-md overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all block"
 									>
 										<img
 											src={getImageProxyUrl(item.path)}
@@ -340,7 +349,7 @@
 											class="w-full h-full object-cover"
 											loading="lazy"
 										/>
-									</button>
+									</a>
 								{/each}
 							</div>
 						{/if}
@@ -364,42 +373,3 @@
 		</TabsContent>
 	</Tabs>
 </div>
-
-<!-- My Images Lightbox -->
-<Dialog.Root bind:open={myLbOpen}>
-	<Dialog.Content class="max-w-3xl p-0 overflow-hidden">
-		{#if myImages[myLbIndex]}
-			<div class="relative">
-				<img
-					src={getImageUrl(myImages[myLbIndex].path)}
-					alt={myImages[myLbIndex].path}
-					class="w-full max-h-[70vh] object-contain"
-					loading="lazy"
-				/>
-				<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-					<div class="flex items-center justify-between text-white text-xs">
-						<span class="truncate">{myImages[myLbIndex].path}</span>
-						<a
-							href={getImageUrl(myImages[myLbIndex].path, true)}
-							download
-							class="p-1.5 rounded bg-white/20 hover:bg-white/30"
-						>
-							<Icon icon="mdi:download" class="size-4" />
-						</a>
-					</div>
-				</div>
-			</div>
-			{#if myImages.length > 1}
-				<div class="flex items-center justify-between px-3 py-2 border-t">
-					<Button variant="ghost" size="sm" onclick={() => (myLbIndex = (myLbIndex - 1 + myImages.length) % myImages.length)}>
-						<Icon icon="mdi:chevron-left" class="size-5" />
-					</Button>
-					<span class="text-xs text-muted-foreground">{myLbIndex + 1} / {myImages.length}</span>
-					<Button variant="ghost" size="sm" onclick={() => (myLbIndex = (myLbIndex + 1) % myImages.length)}>
-						<Icon icon="mdi:chevron-right" class="size-5" />
-					</Button>
-				</div>
-			{/if}
-		{/if}
-	</Dialog.Content>
-</Dialog.Root>
