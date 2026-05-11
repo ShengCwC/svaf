@@ -71,8 +71,9 @@
 	let activeTab = $state('generate');
 
 	$effect(() => {
-		if (activeTab === 'mine' && isLoggedIn && !myRecsLoaded) {
-			loadMyRecommendations();
+		if (activeTab === 'mine' && isLoggedIn) {
+			if (!myImagesLoaded) loadMyImages();
+			if (!myRecsLoaded) loadMyRecommendations();
 		}
 	});
 
@@ -385,10 +386,6 @@
 
 						{#if myImagesLoading}
 							<div class="text-xs text-muted-foreground py-8 text-center">加载中...</div>
-						{:else if !myImagesLoaded}
-							<div class="text-xs text-muted-foreground py-8 text-center">
-								<Button variant="outline" size="sm" onclick={loadMyImages}>加载我的图片</Button>
-							</div>
 						{:else if myImages.length === 0}
 							<div class="text-xs text-muted-foreground py-8 text-center">你还没有生成过图片</div>
 						{:else}
@@ -417,7 +414,7 @@
 							我的自荐
 						</h3>
 						{#if !myRecsLoaded}
-							<Button variant="outline" size="sm" onclick={loadMyRecommendations}>加载自荐记录</Button>
+							<div class="text-xs text-muted-foreground py-2">加载中...</div>
 						{:else if myRecommendations.length === 0}
 							<div class="text-xs text-muted-foreground">暂无自荐记录</div>
 						{:else}
