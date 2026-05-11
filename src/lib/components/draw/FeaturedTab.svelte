@@ -6,6 +6,7 @@
 	import PhotoSwipeLightbox from 'photoswipe/lightbox';
 	import 'photoswipe/style.css';
 	import { fetchFeatured, getImageUrl, getImageProxyUrl } from '$lib/draw/api/client';
+	import { resolveUsername } from '$lib/draw/stores/username';
 	import type { DrawOutputItem } from '$lib/draw/types';
 
 	const tip = '精选图片由管理员挑选，展示社区优质作品。';
@@ -18,6 +19,24 @@
 
 	let items = $state<DrawOutputItem[]>([]);
 	let loading = $state(true);
+	let names = $state<Record<string, string>>({});
+
+	function creatorLabel(item: DrawOutputItem): string {
+		if (!item.creator_id) return '';
+		return names[item.creator_id] || `UID:${item.creator_id}`;
+	}
+
+	$effect(() => {
+		for (const item of items) {
+			if (item.creator_id && !(item.creator_id in names)) {
+				resolveUsername(item.creator_id).then((name) => {
+					if (name !== item.creator_id) {
+						names = { ...names, [item.creator_id!]: name };
+					}
+				});
+			}
+		}
+	});
 
 	let galleryEl: HTMLElement;
 	let lightbox: PhotoSwipeLightbox | null = null;
@@ -110,7 +129,7 @@
 			{#each items as item}
 				<a
 					href={getImageUrl(item.path)}
-					class="aspect-square rounded-lg overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all block"
+					class="aspect-square rounded-lg overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all block relative group"
 				>
 					<img
 						src={getImageProxyUrl(item.path)}
@@ -118,6 +137,14 @@
 						class="w-full h-full object-cover"
 						loading="lazy"
 					/>
+					{#if item.creator_id}
+						<span
+							class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] px-1 py-0.5 truncate opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:underline"
+							onclick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(`/forum/u/${item.creator_id}`, '_blank'); }}
+						>
+							{creatorLabel(item)}
+						</span>
+					{/if}
 				</a>
 			{/each}
 		</div>

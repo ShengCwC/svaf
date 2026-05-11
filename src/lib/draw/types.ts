@@ -104,6 +104,7 @@ export interface DrawOutputItem {
 	path: string;
 	mtime: number;
 	size?: number;
+	creator_id?: string;
 }
 
 export interface DrawOutputListResponse {
