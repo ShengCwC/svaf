@@ -466,7 +466,7 @@
 								{#each myImages as item, i}
 									<div role="button" tabindex="0"
 										class="group relative aspect-square rounded-md overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer"
-										onclick={() => { myLbIndex = i; myLbOpen = true; }}
+										onclick={() => { if (selectMode) { const s = new Set(selectedPaths); if (s.has(item.path)) s.delete(item.path); else s.add(item.path); selectedPaths = s; } else { myLbIndex = i; myLbOpen = true; } }
 									>
 										<img
 											src={getImageProxyUrl(item.path)}
