@@ -740,7 +740,7 @@
 		{/if}
 
 		<Tabs bind:value={activeTab} class="w-full">
-			<TabsList class="w-full flex flex-wrap h-auto gap-1">
+			<TabsList class="w-full flex flex-wrap gap-1 overflow-visible min-h-9 !h-auto">
 				<TabsTrigger value="maintenance" class="text-xs">
 					<Icon icon="mdi:tools" class="size-3.5 mr-1" />维护
 				</TabsTrigger>
