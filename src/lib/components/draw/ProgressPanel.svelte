@@ -106,26 +106,28 @@
 {#if visible}
 	<div class="space-y-3">
 		<!-- Preview image (during generation) or final results -->
-		{#if resultImages.length > 0}
-			<div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-				{#each resultImages as img, i}
-					<button
-						type="button"
-						class="aspect-square rounded-lg overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer"
-						onclick={() => openLightbox(i)}
-					>
-						<img
-							src={getImageProxyUrl(img.filename)}
-							alt={img.filename}
-							class="w-full h-full object-cover"
-							loading="lazy"
-						/>
-					</button>
-				{/each}
-			</div>
-		{:else if previewSrc}
+		{#if previewSrc || resultImages.length > 0}
 			<div class="rounded-lg overflow-hidden border">
-				<img src={previewSrc} alt="预览" class="w-full max-h-64 object-contain" loading="lazy" />
+				{#if resultImages.length > 0}
+					<div class="space-y-2">
+						{#each resultImages as img, i}
+							<button
+								type="button"
+								class="w-full cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+								onclick={() => openLightbox(i)}
+							>
+								<img
+									src={getImageProxyUrl(img.filename)}
+									alt={img.filename}
+									class="w-full object-contain max-h-64"
+									loading="lazy"
+								/>
+							</button>
+						{/each}
+					</div>
+				{:else}
+					<img src={previewSrc} alt="预览" class="w-full max-h-64 object-contain" loading="lazy" />
+				{/if}
 			</div>
 		{/if}
 
