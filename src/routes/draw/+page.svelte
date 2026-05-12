@@ -250,6 +250,7 @@
 		isGenerating = true;
 		progressMessages = [];
 		resultImages = [];
+		genCost = 0;
 		showProgress = true;
 
 		const ratingTag = `rating:${safetyRating}`;
@@ -293,6 +294,9 @@
 		}
 		if (msg.type === 'error') {
 			isGenerating = false;
+		}
+		if (msg.type === 'cost') {
+			genCost = msg.cost;
 		}
 		if (msg.type === 'done') {
 			isGenerating = false;
@@ -468,6 +472,7 @@
 				visible={showProgress}
 				busy={isGenerating}
 				bind:resultImages
+				cost={genCost}
 				onFork={handleFork}
 			/>
 		</TabsContent>

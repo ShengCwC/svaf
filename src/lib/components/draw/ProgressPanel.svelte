@@ -10,12 +10,14 @@
 		visible = false,
 		busy = false,
 		resultImages = [],
+		cost = 0,
 		onFork
 	}: {
 		messages?: WsRunMessage[];
 		visible?: boolean;
 		busy?: boolean;
 		resultImages?: { url: string; filename: string }[];
+		cost?: number;
 		onFork?: (path: string) => void;
 	} = $props();
 
@@ -153,6 +155,13 @@
 				></div>
 			</div>
 		</div>
+
+		<!-- Cost -->
+		{#if cost > 0}
+			<div class="text-[11px] text-yellow-500">
+				本次生图用电 ¥{cost.toFixed(6)}
+			</div>
+		{/if}
 
 		<!-- LLM streaming -->
 		{#if llmVisible || llmText}

@@ -193,6 +193,12 @@ export interface WsDoneMessage {
 	count: number;
 }
 
+export interface WsCostMessage {
+	type: 'cost';
+	kwh: number;
+	cost: number;
+}
+
 export interface WsErrorMessage {
 	type: 'error';
 	message: string;
@@ -223,6 +229,7 @@ export type WsRunMessage =
 	| WsPreviewMessage
 	| WsImageMessage
 	| WsDoneMessage
+	| WsCostMessage
 	| WsErrorMessage;
 
 export type WsStatusEvent =
