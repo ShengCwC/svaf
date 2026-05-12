@@ -154,6 +154,7 @@ export async function forkOutputImage(path: string) {
 		loras: string[];
 		format: string;
 		seed?: number;
+		workflow_path?: string;
 	}>('/api/output/fork', { method: 'POST', json: { path } });
 }
 
