@@ -47,7 +47,7 @@
 
 	// Recommendations
 	let recommendations = $state<DrawRecommendation[]>([]);
-	let recRejectReason = $state('');
+	let recRejectReasons = $state<Record<string, string>>({});
 
 	// Featured
 	let featuredPaths = $state<string[]>([]);
@@ -292,10 +292,11 @@
 	async function resolveRec(recId: string, action: 'approve' | 'reject') {
 		loading = true;
 		try {
-			await admin.resolveRecommendation(recId, action, action === 'reject' ? recRejectReason : undefined);
+			const reason = recRejectReasons[recId] || undefined;
+			await admin.resolveRecommendation(recId, action, action === 'reject' ? reason : undefined);
 			showMsg('success', action === 'approve' ? '已通过' : '已拒绝');
 			recommendations = recommendations.filter((r) => r.id !== recId);
-			recRejectReason = '';
+			delete recRejectReasons[recId];
 		} catch (e) {
 			showMsg('error', e instanceof Error ? e.message : '处理失败');
 		} finally {
@@ -1006,7 +1007,7 @@
 												通过
 											</Button>
 											<Input
-												bind:value={recRejectReason}
+												bind:value={recRejectReasons[rec.id]}
 												placeholder="拒绝理由（可选）"
 												class="h-8 text-xs flex-1 min-w-[140px]"
 											/>
