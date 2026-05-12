@@ -155,6 +155,7 @@ export async function forkOutputImage(path: string) {
 		format: string;
 		seed?: number;
 		style_tags?: string;
+		matched_workflow?: string;
 	}>('/api/output/fork', { method: 'POST', json: { path } });
 }
 

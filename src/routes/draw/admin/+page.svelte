@@ -112,7 +112,8 @@
 				default_width: res.default_width,
 				default_height: res.default_height,
 				seed: res.seed,
-				style_tags: res.style_tags
+				style_tags: res.style_tags,
+				matched_workflow: res.matched_workflow
 			});
 			window.location.href = '/draw';
 		} catch (e) {
