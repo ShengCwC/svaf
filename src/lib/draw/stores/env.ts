@@ -6,6 +6,9 @@ import { derived, get, writable } from 'svelte/store';
 export const DRAW_API_ENV_STORAGE_KEY = 'draw-api-env';
 export const DRAW_API_CUSTOM_BASE_URL_STORAGE_KEY = 'draw-api-custom-base-url';
 
+/** 全局 API 错误状态：当 drawRequest 彻底失败时设置 */
+export const apiError = writable<string | null>(null);
+
 export const DRAW_API_BASE_URLS: Record<DrawApiEnv, string> = {
 	prod: 'https://api-ai.2x.nz',
 	dev: 'http://localhost:8080'

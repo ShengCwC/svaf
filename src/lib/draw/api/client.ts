@@ -1,5 +1,5 @@
 import { forumAuth } from '$lib/forum/stores/auth';
-import { drawEnv, resolveApiRedirect } from '../stores/env';
+import { drawEnv, resolveApiRedirect, apiError } from '../stores/env';
 import { DrawApiError } from '../types';
 import type { DrawApiErrorPayload, DrawRecommendation } from '../types';
 import { get } from 'svelte/store';
@@ -83,6 +83,7 @@ export async function drawRequest<T>(
 				// fall through
 			}
 		}
+		apiError.set('后端不可用，二叉树树目前可能需要使用电脑，未启用生图功能');
 		throw new DrawApiError(503, {
 			code: 'DRAW_API_UNREACHABLE',
 			message:

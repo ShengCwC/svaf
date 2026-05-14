@@ -7,7 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { forumAuth } from '$lib/forum/stores/auth';
-	import { drawEnv } from '$lib/draw/stores/env';
+	import { drawEnv, apiError } from '$lib/draw/stores/env';
 	import { connectRunWs, connectStatusWs } from '$lib/draw/api/ws';
 	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage, recommendImage, deleteMyImage, fetchMyRecommendations } from '$lib/draw/api/client';
 	import { consumeFork } from '$lib/draw/stores/fork';
@@ -98,6 +98,16 @@
 	// WebSocket refs
 	let statusConn: ReturnType<typeof connectStatusWs> | null = null;
 	let runWs: WebSocket | null = null;
+
+	// API error state
+	let apiErrorMessage = $state('');
+
+	$effect(() => {
+		const unsub = apiError.subscribe((v) => {
+			apiErrorMessage = v || '';
+		});
+		return unsub;
+	});
 
 	// Tab state
 	let activeTab = $state('generate');
@@ -387,6 +397,13 @@
 			<AlertDescription class="text-xs">
 				请先<a href="/forum/auth/login?redirect=/draw/" class="underline font-medium">登录论坛</a>后使用生图功能。
 			</AlertDescription>
+		</Alert>
+	{/if}
+
+	{#if apiErrorMessage}
+		<Alert>
+			<Icon icon="mdi:cloud-alert" class="size-4 shrink-0" />
+			<AlertDescription class="text-xs">{apiErrorMessage}</AlertDescription>
 		</Alert>
 	{/if}
 
