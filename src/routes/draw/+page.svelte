@@ -388,7 +388,9 @@
 			{#if globalBusy}
 				<Badge variant="default" class="text-xs animate-pulse">生成中</Badge>
 			{/if}
-			{#if apiStatusValue === "offline"}
+			{#if apiStatusValue === "checking"}
+				<Badge variant="outline" class="text-xs text-muted-foreground">API 检测中</Badge>
+			{:else if apiStatusValue === "offline"}
 				<Badge variant="destructive" class="text-xs">API 离线</Badge>
 			{:else if apiStatusValue === "online"}
 				<Badge variant="outline" class="text-xs text-green-500 border-green-500">API 在线</Badge>
