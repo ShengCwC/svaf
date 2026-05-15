@@ -1184,6 +1184,7 @@ function formatTime(ts: number) {
 						{#if limits}
 							{@render limitField('生成冷却（秒）', 'gen_cooldown_sec', 'number')}
 								{@render limitField('生成后冷却（秒）', 'gen_cooldown_after_sec', 'number')}
+								{@render limitField('每用户队列上限', 'max_queue_per_user', 'number')}
 							{@render limitField('速率窗口（秒）', 'image_rate_window_sec', 'number')}
 							{@render limitField('速率上限', 'image_rate_max', 'number')}
 							{@render limitField('举报窗口（秒）', 'report_window_sec', 'number')}
