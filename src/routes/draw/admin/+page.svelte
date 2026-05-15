@@ -815,28 +815,30 @@ let loadingMore = $state(false);
 		}
 	});
 
-	onMount(() => {
-	columnCount = getColumnCount();
-	imgColumns = Array.from({ length: columnCount }, () => []);
-	columnHeights = new Array(columnCount).fill(0);
-	if (sentinelEl) {
+	// IntersectionObserver sentinelEl 可用时才创建（切到图片 tab 后）
+	$effect(() => {
+		const el = sentinelEl;
+		if (!el) return;
 		io = new IntersectionObserver(
 			(entries) => {
 				if (entries.some((e) => e.isIntersecting && !loadingMore && hasMore)) loadMoreRecent();
 			},
 			{ rootMargin: '400px 0px' }
 		);
-		io.observe(sentinelEl);
-	}
-	window.addEventListener('resize', handleResize, { passive: true });
-});
+		io.observe(el);
+		return () => io?.disconnect();
+	});
 
-onDestroy(() => {
-	io?.disconnect();
-	if (typeof window !== 'undefined') {
+	onMount(() => {
+	columnCount = getColumnCount();
+	imgColumns = Array.from({ length: columnCount }, () => []);
+	columnHeights = new Array(columnCount).fill(0);
+	window.addEventListener('resize', handleResize, { passive: true });
+	return () => {
+		io?.disconnect();
 		window.removeEventListener('resize', handleResize);
-	}
-});
+	};
+	});
 
 function formatTime(ts: number) {
 		return new Date(ts * 1000).toLocaleString('zh-CN');
