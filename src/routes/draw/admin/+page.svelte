@@ -1326,6 +1326,19 @@ function formatTime(ts: number) {
 										</div>
 									{/each}
 								</div>
+								{:else if llmConfig.provider === 'anthropic'}
+									<div class="space-y-1.5">
+										<Label class="text-xs">API Key</Label>
+										<Input class="text-xs" type="password" bind:value={llmConfig.anthropic_api_key} placeholder="留空不修改，输入新值覆盖" />
+									</div>
+									<div class="space-y-1.5">
+										<Label class="text-xs">模型名称</Label>
+										<Input class="text-xs" bind:value={llmConfig.anthropic_model} placeholder={llmDefaults?.anthropic_model || ''} />
+									</div>
+									<div class="space-y-1.5">
+										<Label class="text-xs">API Base URL</Label>
+										<Input class="text-xs" bind:value={llmConfig.anthropic_base_url} placeholder={llmDefaults?.anthropic_base_url || ''} />
+									</div>
 							{:else if llmConfig.provider === 'custom'}
 								<div class="space-y-1.5">
 									<Label class="text-xs">API 端点（OpenAI 兼容）</Label>
