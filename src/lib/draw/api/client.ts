@@ -191,6 +191,16 @@ export async function clearQueue() {
 	});
 }
 
+export async function fetchDebugInfo() {
+	return drawRequest<{
+		active: { count: number; status: unknown; semaphore_locked: boolean; subscribers: number };
+		queue_stats: Record<string, number>;
+		queue_users: [number, number][];
+		stuck: Array<{ id: number; user_id: number; status: string }>;
+		recent_items: Array<{ id: number; user_id: number; status: string; created_ago: number; started_ago?: number | null; error?: string }>;
+	}>('/api/draw/debug', { requiresAuth: true });
+}
+
 export async function recommendImage(imagePath: string, reason?: string) {
 	return drawRequest<{ ok: boolean; recommendation: DrawRecommendation }>('/api/draw/recommend', {
 		method: 'POST',
