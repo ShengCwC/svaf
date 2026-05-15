@@ -9,7 +9,7 @@
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { drawEnv, apiError, apiStatus, resolveApiRedirect } from '$lib/draw/stores/env';
 	import { connectRunWs, connectStatusWs } from '$lib/draw/api/ws';
-	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage, recommendImage, deleteMyImage, fetchMyRecommendations, addToQueue } from '$lib/draw/api/client';
+	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage, recommendImage, deleteMyImage, fetchMyRecommendations, addToQueue, fetchMyQueue } from '$lib/draw/api/client';
 	import { consumeFork } from '$lib/draw/stores/fork';
 	import { onMount, onDestroy } from 'svelte';
 	import type { WsRunMessage, WsStatusEvent, WsRunPayload, DrawWorkflow, DrawRecommendation } from '$lib/draw/types';
@@ -90,6 +90,8 @@
 	let myImagesTotal = $state(0);
 	let myImagesLoading = $state(false);
 	let myImagesLoaded = $state(false);
+	let myQueueItems = $state<Array<{ id: number; status: string; created_at: number; started_at?: number; finished_at?: number; error?: string; position?: number | null }>>([]);
+	let myQueueLoading = $state(false);
 	// Masonry layout
 	let columnCount = $state(4);
 	let imgColumns = $state<string[][]>([[], [], [], []]);
@@ -149,6 +151,7 @@
 	$effect(() => {
 		if (activeTab === 'mine' && isLoggedIn) {
 			if (!myImagesLoaded) loadMyImages();
+			loadMyQueue();
 			if (!myRecsLoaded) loadMyRecommendations();
 		}
 	});
@@ -370,6 +373,18 @@
 		}
 	}
 
+	async function loadMyQueue() {
+		myQueueLoading = true;
+		try {
+			const res = await fetchMyQueue();
+			myQueueItems = res.items.filter(it => it.status === 'pending' || it.status === 'running');
+		} catch {
+			myQueueItems = [];
+		} finally {
+			myQueueLoading = false;
+		}
+	}
+
 	function getColumnCount(): number {
 		if (typeof window === 'undefined') return 4;
 		const w = window.innerWidth;
@@ -379,6 +394,13 @@
 		if (w >= 480) return 3;
 		return 2;
 	}
+
+		function formatTimeAgo(ts: number): string {
+			const diff = Math.floor(Date.now() / 1000 - ts);
+			if (diff < 60) return `${diff}秒前`;
+			if (diff < 3600) return `${Math.floor(diff / 60)}分钟前`;
+			return `${Math.floor(diff / 3600)}小时前`;
+		}
 
 	function pushToShortest(path: string) {
 		let minIdx = 0;
@@ -656,6 +678,44 @@
 					</Alert>
 				{:else}
 					<div class="space-y-3">
+						<!-- 队列状态 -->
+						<div class="space-y-2">
+							<div class="flex items-center justify-between">
+								<h3 class="text-sm font-medium flex items-center gap-1.5">
+									<Icon icon="mdi:queue-play" class="size-4" />
+									队列等待中
+									{#if myQueueLoading}
+										<span class="text-xs text-muted-foreground">加载中...</span>
+									{:else if myQueueItems.length > 0}
+										<Badge variant="secondary" class="text-[10px] px-1 py-0">{myQueueItems.length}</Badge>
+									{/if}
+								</h3>
+								{#if !myQueueLoading}
+									<Button variant="ghost" size="sm" onclick={loadMyQueue}>
+										<Icon icon="mdi:refresh" class="size-4" />
+									</Button>
+								{/if}
+							</div>
+							{#if myQueueItems.length === 0}
+								<div class="text-xs text-muted-foreground py-3 text-center">暂无排队任务</div>
+							{:else}
+								<div class="space-y-1">
+									{#each myQueueItems as item}
+										<div class="flex items-center gap-2 text-xs border rounded-lg px-3 py-2">
+											{#if item.status === 'running'}
+												<Icon icon="mdi:loading" class="size-4 animate-spin text-primary" />
+												<span class="flex-1">正在生图中...</span>
+											{:else if item.status === 'pending'}
+												<Icon icon="mdi:clock-outline" class="size-4 text-muted-foreground" />
+												<span class="flex-1">排队中 {item.position ? `#第${item.position}位` : ''}</span>
+											{/if}
+											<span class="text-muted-foreground">{formatTimeAgo(item.created_at)}</span>
+										</div>
+									{/each}
+								</div>
+							{/if}
+						</div>
+
 						<div class="flex items-center justify-between">
 							<h3 class="text-sm font-medium flex items-center gap-1.5">
 								<Icon icon="mdi:account-outline" class="size-4" />

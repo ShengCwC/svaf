@@ -165,11 +165,23 @@ export async function addToQueue(payload: {
 	image1_name?: string;
 	image2_name?: string;
 }) {
-	return drawRequest<{ queued: boolean; position: number }>('/api/draw/queue', {
+	return drawRequest<{ queued: boolean; position: number; item_id: number }>('/api/draw/queue', {
 		method: 'POST',
 		json: payload,
 		requiresAuth: true,
 	});
+}
+
+export async function fetchMyQueue() {
+	return drawRequest<{ items: Array<{
+		id: number;
+		status: string;
+		created_at: number;
+		started_at?: number;
+		finished_at?: number;
+		error?: string;
+		position?: number | null;
+	}>; total: number }>('/api/draw/my-queue', { requiresAuth: true });
 }
 
 export async function recommendImage(imagePath: string, reason?: string) {
