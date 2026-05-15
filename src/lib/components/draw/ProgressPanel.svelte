@@ -44,7 +44,7 @@
 	let lastProcessed = $state(0);
 	let lbOpen = $state(false);
 	let lbIndex = $state(0);
-	let lbImages = $derived(resultImages.map((img) => ({ src: getImageUrl(img.filename), creator_id: '' })));
+	let lbImages = $derived(resultImages.map((img) => ({ src: img.url || getImageUrl(img.filename), creator_id: '' })));
 
 	const progressPercent = $derived(progressMax > 0 ? Math.round((progressValue / progressMax) * 100) : 0);
 
@@ -133,7 +133,7 @@
 								onclick={() => openLightbox(i)}
 							>
 								<img
-									src={getImageProxyUrl(img.filename)}
+									src={img.url || getImageProxyUrl(img.filename)}
 									alt={img.filename}
 									class="w-full object-contain max-h-64"
 									loading="lazy"
