@@ -1052,8 +1052,11 @@ function formatTime(ts: number) {
 													<Icon icon="mdi:delete" class="size-3.5" />
 												</button>
 											</div>
-											<div class="absolute bottom-0 inset-x-0 bg-black/50 text-white text-[10px] px-1 py-0.5 truncate pointer-events-none">
-												{img.user_id || '?'}
+											<div class="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] px-1 py-0.5 pointer-events-none space-y-0.5">
+												<div class="truncate">UID:{img.user_id || '?'} {img.prompt ? img.prompt.slice(0, 60) + (img.prompt.length > 60 ? '...' : '') : ''}</div>
+												{#if img.upload}
+													<div class="truncate">原图: <a href="/api/uploads/{img.upload}" target="_blank" class="underline pointer-events-auto" onclick={(e) => e.stopPropagation()}>查看</a></div>
+												{/if}
 											</div>
 										</div>
 									{/if}
