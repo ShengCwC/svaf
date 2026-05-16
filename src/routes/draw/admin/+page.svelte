@@ -128,10 +128,10 @@ let loadingMore = $state(false);
 	// Lightbox
 	let lbOpen = $state(false);
 	let lbImages = $state<{ src: string; creator_id?: string; cached?: string }[]>([]);
-	let detailImg: any = null;
 
 	function openLb(path: string) {
-		detailImg = recentImages.find(i => i.path === path) || null;
+		lbImages = [{ src: getImageUrl(path), creator_id: '', cached: getImageProxyUrl(path) }];
+		lbOpen = true;
 	}
 
 	async function handleAdminFork(path: string) {
@@ -1022,7 +1022,7 @@ function formatTime(ts: number) {
 										<div class="relative group">
 											<button
 												class="w-full rounded-md overflow-hidden border {selectedPaths.has(img.path) ? 'ring-2 ring-primary' : ''}"
-												onclick={() => { detailImg = img; }}
+												onclick={() => openLb(img.path)}
 											>
 												<img
 													src={getImageProxyUrl(img.path)}
@@ -1052,9 +1052,22 @@ function formatTime(ts: number) {
 													<Icon icon="mdi:delete" class="size-3.5" />
 												</button>
 											</div>
-											<div class="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[11px] px-1.5 py-0.5 truncate pointer-events-none">
-												UID:{img.user_id || '?'}
+											<div class="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] px-1 py-0.5 pointer-events-none truncate" title="UID: {img.user_id}
+Prompt: {img.prompt || '-'}">
+												UID {img.user_id || '?'}
 											</div>
+											{#if img.prompt}
+												<div class="absolute bottom-5 inset-x-0 bg-black/70 text-white text-[9px] px-1 py-0.5 pointer-events-none truncate opacity-0 group-hover:opacity-100 transition-opacity" title="{img.prompt}">
+													{img.prompt}
+												</div>
+											{/if}
+											{#if img.image1}
+												<div class="absolute top-7 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+													<a href="/api/uploads/{img.image1}" target="_blank" class="block bg-black/60 text-white text-[9px] px-1 py-0.5 rounded" onclick={(e) => e.stopPropagation()} title="查看原图">
+														原图
+													</a>
+												</div>
+											{/if}
 										</div>
 									{/if}
 								{/each}
@@ -1775,74 +1788,6 @@ function formatTime(ts: number) {
 	onclose={() => (lbOpen = false)}
 	onfork={handleAdminFork}
 />
-
-{#if detailImg}
-	<!-- Image Detail Dialog -->
-	{#key detailImg.path}
-		<div
-			class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
-			onclick={() => { detailImg = null; }}
-			role="dialog"
-		>
-			<div
-				class="bg-card border rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
-				onclick={(e) => e.stopPropagation()}
-			>
-				<div class="p-4 space-y-3">
-					<div class="flex items-start justify-between">
-						<h3 class="text-sm font-medium">图片详情</h3>
-						<button class="text-muted-foreground hover:text-foreground" onclick={() => { detailImg = null; }}>
-							<Icon icon="mdi:close" class="size-5" />
-						</button>
-					</div>
-
-					<img src={getImageUrl(detailImg.path)} alt="" class="w-full rounded-lg max-h-96 object-contain bg-muted" />
-
-					<div class="space-y-1.5 text-xs">
-						<div class="flex items-center gap-2">
-							<span class="text-muted-foreground w-16 shrink-0">UID</span>
-							<span>{detailImg.user_id || '?'}</span>
-						</div>
-						<div class="flex items-center gap-2">
-							<span class="text-muted-foreground w-16 shrink-0">文件名</span>
-							<span class="truncate font-mono">{detailImg.path}</span>
-						</div>
-						{#if detailImg.prompt?.nl}
-							<div class="flex gap-2">
-								<span class="text-muted-foreground w-16 shrink-0 mt-0.5">描述</span>
-								<span class="break-words">{detailImg.prompt.nl}</span>
-							</div>
-						{/if}
-						{#if detailImg.prompt?.pos}
-							<div class="flex gap-2">
-								<span class="text-muted-foreground w-16 shrink-0 mt-0.5">正向</span>
-								<span class="break-words">{detailImg.prompt.pos}</span>
-							</div>
-						{/if}
-						{#if detailImg.prompt?.neg}
-							<div class="flex gap-2">
-								<span class="text-muted-foreground w-16 shrink-0 mt-0.5">反向</span>
-								<span class="break-words">{detailImg.prompt.neg}</span>
-							</div>
-						{/if}
-						{#if detailImg.upload1}
-							<div class="flex items-center gap-2">
-								<span class="text-muted-foreground w-16 shrink-0">原图1</span>
-								<a href="/api/uploads/{detailImg.upload1}" target="_blank" class="text-primary underline">查看</a>
-							</div>
-						{/if}
-						{#if detailImg.upload2}
-							<div class="flex items-center gap-2">
-								<span class="text-muted-foreground w-16 shrink-0">原图2</span>
-								<a href="/api/uploads/{detailImg.upload2}" target="_blank" class="text-primary underline">查看</a>
-							</div>
-						{/if}
-					</div>
-				</div>
-			</div>
-		</div>
-	{/key}
-{/if}
 
 {#snippet limitField(label: string, key: keyof AdminLimits, type: 'number' | 'text')}
 	{#if limits}

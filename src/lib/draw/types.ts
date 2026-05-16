@@ -229,6 +229,9 @@ export interface AdminRecentImage {
 	path: string;
 	user_id: string;
 	mtime: number;
+	prompt?: string;
+	image1?: string;
+	image2?: string;
 }
 
 export interface AdminReport {
