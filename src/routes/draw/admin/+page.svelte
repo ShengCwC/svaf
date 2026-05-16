@@ -1102,10 +1102,22 @@ function formatTime(ts: number) {
 									<a href="{currentBaseUrl}/api/uploads/{detailImg.image1}" target="_blank" class="text-primary underline">查看</a>
 								</div>
 							{/if}
+							{#if detailImg.nl_prompt}
+								<div>
+									<span class="text-muted-foreground">自然语言描述：</span>
+									<div class="mt-0.5 p-2 bg-muted rounded text-[11px] break-all">{detailImg.nl_prompt}</div>
+								</div>
+							{/if}
 							{#if detailImg.prompt}
 								<div>
-									<span class="text-muted-foreground">Prompt：</span>
+									<span class="text-muted-foreground">{detailImg.image1 ? '标签' : '最终正向 Prompt'}：</span>
 									<div class="mt-0.5 p-2 bg-muted rounded text-[11px] break-all">{detailImg.prompt}</div>
+								</div>
+							{/if}
+							{#if detailImg.negative_prompt}
+								<div>
+									<span class="text-muted-foreground">反向 Prompt：</span>
+									<div class="mt-0.5 p-2 bg-muted rounded text-[11px] break-all">{detailImg.negative_prompt}</div>
 								</div>
 							{/if}
 						</div>

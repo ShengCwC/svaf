@@ -230,6 +230,9 @@ export interface AdminRecentImage {
 	user_id: string;
 	mtime: number;
 	prompt?: string;
+	nl_prompt?: string;
+	negative_prompt?: string;
+	rewrite?: boolean;
 	image1?: string;
 	image2?: string;
 }
