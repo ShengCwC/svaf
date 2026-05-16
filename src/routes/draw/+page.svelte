@@ -319,19 +319,23 @@
 	}
 
 	async function loadMyQueue() {
-		if (!_queueLoadedOnce) myQueueLoading = true;
-		_queueLoadedOnce = true;
+		myQueueLoading = true;
 		try {
 			const res = await fetchMyQueue();
 			const now = res.items;
-			const showItems = now.filter(it => it.status === 'pending' || it.status === 'waiting' || it.status === 'running' || it.status === 'done' || it.status === 'failed');
+			const showItems = now.filter(it => it.status === 'pending' || it.status === 'waiting' || it.status === 'running');
 				const prevActive = new Set(showItems.map(it => it.id));
 				const newlyDone = now.filter(it => (it.status === 'done' || it.status === 'failed') && !notifiedIds.has(it.id) && prevQueueIds.has(it.id));
 				for (const item of newlyDone) {
 					notifiedIds.add(item.id);
+					if (item.status === 'done') {
+						// 刷新我的图片
+						myImagesLoaded = false;
+						loadMyImages();
+					}
 					if ('Notification' in window && Notification.permission === 'granted') {
 						new Notification('生图完成' + (item.status === 'failed' ? '（失败）' : ''), {
-							body: item.status === 'done' ? '你的图片已生成完成，前往"我的"页面查看。' : (item.error || '生图失败'),
+							body: item.status === 'done' ? '你的图片已生成完成。' : (item.error || '生图失败'),
 							icon: '/favicon.ico'
 						});
 					}
