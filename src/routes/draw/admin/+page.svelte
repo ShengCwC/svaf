@@ -129,6 +129,10 @@ let loadingMore = $state(false);
 	let lbOpen = $state(false);
 	let lbImages = $state<{ src: string; creator_id?: string; cached?: string }[]>([]);
 
+	// Image detail popup
+	let detailImg = $state<AdminRecentImage | null>(null);
+	let detailImgSrc = $derived(detailImg ? getImageProxyUrl(detailImg.path) : '');
+
 	function openLb(path: string) {
 		lbImages = [{ src: getImageUrl(path), creator_id: '', cached: getImageProxyUrl(path) }];
 		lbOpen = true;
@@ -1053,22 +1057,17 @@ function formatTime(ts: number) {
 													<Icon icon="mdi:delete" class="size-3.5" />
 												</button>
 											</div>
-											<div class="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] px-1 py-0.5 pointer-events-none truncate" title="UID: {img.user_id}
-Prompt: {img.prompt || '-'}">
-												UID {img.user_id || '?'}
+											<div class="absolute bottom-0 inset-x-0 flex">
+												<div class="flex-1 bg-black/60 text-white text-[10px] px-1 py-0.5 truncate pointer-events-none">
+													UID {img.user_id || '?'}
+												</div>
+												<button
+													class="bg-black/70 text-white text-[10px] px-1.5 py-0.5 hover:bg-black/90"
+													onclick={(e) => { e.stopPropagation(); detailImg = img; }}
+												>
+													详情
+												</button>
 											</div>
-											{#if img.prompt}
-												<div class="absolute bottom-5 inset-x-0 bg-black/70 text-white text-[9px] px-1 py-0.5 pointer-events-none truncate opacity-0 group-hover:opacity-100 transition-opacity" title="{img.prompt}">
-													{img.prompt}
-												</div>
-											{/if}
-											{#if img.image1}
-												<div class="absolute top-7 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
-													<a href="/api/uploads/{img.image1}" target="_blank" class="block bg-black/60 text-white text-[9px] px-1 py-0.5 rounded" onclick={(e) => e.stopPropagation()} title="查看原图">
-														原图
-													</a>
-												</div>
-											{/if}
 										</div>
 									{/if}
 								{/each}
@@ -1081,6 +1080,38 @@ Prompt: {img.prompt || '-'}">
 					<div bind:this={sentinelEl} class="h-4"></div>
 				{/if}
 			</TabsContent>
+
+			{#if detailImg}
+				<div class="fixed inset-0 z-40 bg-black/40 flex items-center justify-center" onclick={() => detailImg = null} role="dialog">
+					<div class="bg-card rounded-lg border shadow-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onclick={(e) => e.stopPropagation()}>
+						<div class="flex items-center justify-between p-3 border-b">
+							<h3 class="text-sm font-medium truncate">{detailImg.path}</h3>
+							<button class="text-muted-foreground hover:text-foreground" onclick={() => detailImg = null}>
+								<Icon icon="mdi:close" class="size-5" />
+							</button>
+						</div>
+						<div class="p-3 space-y-3 text-xs">
+							<img src={getImageUrl(detailImg.path)} alt="" class="w-full rounded border max-h-64 object-contain" loading="lazy" />
+							<div class="grid grid-cols-2 gap-2">
+								<div><span class="text-muted-foreground">生图者：</span>{detailImg.user_id || '?'}</div>
+								<div><span class="text-muted-foreground">时间：</span>{detailImg.mtime ? new Date(detailImg.mtime * 1000).toLocaleString() : '-'}</div>
+							</div>
+							{#if detailImg.image1}
+								<div>
+									<span class="text-muted-foreground">原始图片：</span>
+									<a href="/api/uploads/{detailImg.image1}" target="_blank" class="text-primary underline">查看</a>
+								</div>
+							{/if}
+							{#if detailImg.prompt}
+								<div>
+									<span class="text-muted-foreground">Prompt：</span>
+									<div class="mt-0.5 p-2 bg-muted rounded text-[11px] break-all">{detailImg.prompt}</div>
+								</div>
+							{/if}
+						</div>
+					</div>
+				</div>
+			{/if}
 
 			<!-- Recommendations -->
 			<TabsContent value="recommendations" class="mt-4">
