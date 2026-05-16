@@ -287,6 +287,8 @@
 					inline_workflow: inlineWorkflow || undefined,
 				});
 				queueSuccess = '成功加入队列！等待生图中，前往"我的"页面查看详情。';
+				loadMyQueue();
+				if (!queueTimer) queueTimer = setInterval(loadMyQueue, 1000);
 			} catch (e) {
 				queueError = e instanceof Error ? e.message : '加入队列失败';
 			} finally {
