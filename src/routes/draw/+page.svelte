@@ -50,7 +50,6 @@
 	let width = $state(0);
 	let height = $state(0);
 	let inlineWorkflow = $state<object | null>(null);
-	let safetyRating = $state('general');
 	let forkSeed = $state<number | undefined>(undefined);
 	let sameSeed = $state(false);
 
@@ -71,7 +70,6 @@
 				if (p.nlPrompt) nlPrompt = p.nlPrompt;
 				if (p.width) width = p.width;
 				if (p.height) height = p.height;
-				if (p.safetyRating) safetyRating = p.safetyRating;
 					if (p.forkSeed !== undefined) forkSeed = p.forkSeed;
 					if (p.sameSeed !== undefined) sameSeed = p.sameSeed;
 			}
@@ -158,7 +156,6 @@
 	// Persist form state to localStorage
 	$effect(() => {
 		if (typeof localStorage === 'undefined') return;
-		const state = { workflowPath, workflowName, styleTags, styleName, directPrompt, negativePrompt, nlPrompt, width, height, safetyRating, forkSeed, sameSeed };
 		localStorage.setItem('draw-form', JSON.stringify(state));
 	});
 
@@ -287,7 +284,6 @@
 				return;
 			}
 
-			const ratingTag = `rating:${safetyRating}`;
 			const finalDirectPrompt = directPrompt
 				? `${directPrompt}, ${ratingTag}`
 				: ratingTag;
@@ -606,7 +602,6 @@
 						bind:workflowNegativePrompt
 						bind:width
 						bind:height
-						bind:safetyRating
 						onsubmit={startGeneration}
 						disabled={queuing || !isLoggedIn}
 						busy={queuing}

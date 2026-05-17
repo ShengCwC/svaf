@@ -10,13 +10,6 @@
 	import { get } from 'svelte/store';
 	import type { DrawResolution } from '$lib/draw/types';
 
-	const SAFETY_RATINGS = [
-		{ value: 'general', label: '普通' },
-		{ value: 'sensitive', label: '敏感' },
-		{ value: 'nsfw', label: 'NSFW' },
-		{ value: 'explicit', label: '露骨' }
-	] as const;
-
 	let {
 		directPrompt = $bindable(''),
 		negativePrompt = $bindable(''),
@@ -25,8 +18,7 @@
 		workflowNegativePrompt = $bindable(''),
 		width = $bindable(0),
 		height = $bindable(0),
-		safetyRating = $bindable('general'),
-		onsubmit,
+				onsubmit,
 		disabled = false,
 		busy = false,
 		otherNode = $bindable(''),
@@ -43,8 +35,7 @@
 		workflowNegativePrompt?: string;
 		width?: number;
 		height?: number;
-		safetyRating?: string;
-		onsubmit?: () => void;
+				onsubmit?: () => void;
 		disabled?: boolean;
 		busy?: boolean;
 		otherNode?: string;
@@ -244,21 +235,6 @@
 	</div>
 
 	<!-- Safety rating -->
-	<div class="space-y-1.5">
-		<Label class="text-xs font-medium">分级</Label>
-		<div class="flex flex-wrap gap-1.5">
-			{#each SAFETY_RATINGS as r}
-				<button
-					type="button"
-					class="px-2 py-1 rounded text-xs border transition-all {safetyRating === r.value ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:bg-accent'}"
-					onclick={() => (safetyRating = r.value)}
-
-				>
-					{r.label}
-				</button>
-			{/each}
-		</div>
-	</div>
 
 	<!-- Resolution presets -->
 	{#if resolutions.length > 0}
