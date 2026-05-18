@@ -12,11 +12,10 @@ export const apiError = writable<string | null>(null);
 export type ApiStatus = 'checking' | 'online' | 'offline';
 export const apiStatus = writable<ApiStatus>('checking');
 
-// apiError 和 apiStatus 同步：错误时离线，允许下次重新检测
+// apiError 和 apiStatus 同步：错误时离线
 apiError.subscribe(v => {
 	if (v) {
 		apiStatus.set('offline');
-		_redirectResolved = false; // 下次尝试重新检测
 	}
 });
 
@@ -83,16 +82,23 @@ function createEnvStore(): DrawEnvStore {
 			set: (v) => {
 			const url = sanitizeBaseUrl(v, get(envStore));
 			writeLocalStorage(DRAW_API_CUSTOM_BASE_URL_STORAGE_KEY, url);
+			_redirectResolved = false;
+			_redirectFailAt = 0;
+			apiStatus.set('checking');
 			customBaseUrlStore.set(url);
 		},
 			reset: (env) => {
 			writeLocalStorage(DRAW_API_CUSTOM_BASE_URL_STORAGE_KEY, '');
+			_redirectResolved = false;
+			_redirectFailAt = 0;
 			customBaseUrlStore.set(DRAW_API_BASE_URLS[env]);
 		}
 		},
 		set: (v) => {
 			const next = normalizeEnv(v);
 			writeLocalStorage(DRAW_API_ENV_STORAGE_KEY, next);
+			_redirectResolved = false;
+			_redirectFailAt = 0;
 			envStore.set(next);
 			customBaseUrlStore.set(DRAW_API_BASE_URLS[next]);
 		},
@@ -103,6 +109,8 @@ function createEnvStore(): DrawEnvStore {
 				writeLocalStorage(DRAW_API_ENV_STORAGE_KEY, next);
 				return next;
 			});
+			_redirectResolved = false;
+			_redirectFailAt = 0;
 			customBaseUrlStore.set(DRAW_API_BASE_URLS[next]);
 		},
 		getBaseUrl: (env) => DRAW_API_BASE_URLS[env]
@@ -113,12 +121,16 @@ export const drawEnv: DrawEnvStore = createEnvStore();
 
 /**
  * 探测 API 端点是否有重定向（CDN / 负载均衡），
- * 每次调用都发起请求，不缓存。
+ * 失败后有 30s 冷却，避免高频重试。
  */
 let _redirectResolved = false;
+let _redirectFailAt = 0;
+const REDIRECT_COOLDOWN = 30000;
 
 export async function resolveApiRedirect(force = false): Promise<void> {
 	if (_redirectResolved && !force) return;
+	const now = Date.now();
+	if (!force && now - _redirectFailAt < REDIRECT_COOLDOWN) return;
 	apiStatus.set('checking');
 	const baseUrl = get(drawEnv.baseUrl);
 	try {
@@ -130,7 +142,8 @@ export async function resolveApiRedirect(force = false): Promise<void> {
 		_redirectResolved = true;
 		apiStatus.set('online');
 		apiError.set(null);
-	} catch (e) {
+	} catch {
+		_redirectFailAt = Date.now();
 		apiStatus.set('offline');
 	}
 }
