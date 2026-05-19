@@ -7,7 +7,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { forumAuth } from '$lib/forum/stores/auth';
-	import { drawEnv, resolveApiRedirect } from '$lib/draw/stores/env';
+	import { drawEnv } from '$lib/draw/stores/env';
 	import { getImageProxyUrl, getImageUrl } from '$lib/draw/api/client';
 	import * as collab from '$lib/draw/api/collaborator';
 	import { onMount, onDestroy } from 'svelte';
@@ -173,10 +173,6 @@
 	}
 
 	$effect(() => {
-		resolveApiRedirect();
-	});
-
-	$effect(() => {
 		authToken = forumAuth.getToken();
 		console.log("[collab] auth effect: token=", authToken ? authToken.slice(0,10)+"..." : null);
 		const u = drawEnv.baseUrl.subscribe((v) => (currentBaseUrl = v));
@@ -188,7 +184,7 @@
 		console.log('[collab] tab effect: tab=', tab, 'authToken=', !!authToken);
 		if (!authToken) return;
 		switch (tab) {
-			case 'images': console.log('[collab] tab switch -> loadImages'); loadImages(); break;
+			case 'images': if (allImages.length === 0) { console.log('[collab] tab switch -> loadImages'); loadImages(); } break;
 			case 'nominations': loadMyNominations(); break;
 		}
 	});
