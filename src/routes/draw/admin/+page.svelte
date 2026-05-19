@@ -1311,7 +1311,8 @@ function formatTime(ts: number) {
 				</div>
 				{#if recommendations.length === 0}
 					<div class="text-sm text-muted-foreground py-8 text-center">无待审核自荐</div>
-									<div bind:this={recMasonryEl} class="relative w-full">
+					{:else}
+						<div bind:this={recMasonryEl} class="relative w-full">
 						<div class="rec-sizer w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5"></div>
 						{#each recommendations as rec, i (rec.id || i)}
 							<div class="rec-item w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-1">
