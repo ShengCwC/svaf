@@ -352,7 +352,13 @@
 		></textarea>
 	</div>
 
-	<!-- Run Button -->
+	<TurnstileWidget
+			siteKey="0x4AAAAAADSVSh5jjelMNlrv"
+			onToken={(t) => (turnstileToken = t)}
+			onExpired={() => (turnstileToken = '')}
+		/>
+
+		<!-- Run Button -->
 	<Button
 		class="w-full gap-2"
 		onclick={startGeneration}
