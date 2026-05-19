@@ -1600,24 +1600,6 @@ function formatTime(ts: number) {
 						{/if}
 
 						{#if debugData}
-							<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-								<div class="border rounded-lg p-3 text-center">
-									<div class="text-2xl font-bold {debugData.active.count > 0 ? 'text-green-500' : 'text-muted-foreground'}">{debugData.active.count}</div>
-									<div class="text-xs text-muted-foreground">活跃中</div>
-								</div>
-								<div class="border rounded-lg p-3 text-center">
-									<div class="text-2xl font-bold {debugData.active.semaphore_locked ? 'text-amber-500' : 'text-muted-foreground'}">{debugData.active.semaphore_locked ? '锁定' : '空闲'}</div>
-									<div class="text-xs text-muted-foreground">信号量</div>
-								</div>
-								<div class="border rounded-lg p-3 text-center">
-									<div class="text-2xl font-bold">{debugData.active.subscribers}</div>
-									<div class="text-xs text-muted-foreground">WS 订阅</div>
-								</div>
-								<div class="border rounded-lg p-3 text-center">
-									<div class="text-2xl font-bold">{Object.values(debugData.queue_stats as Record<string, number>).reduce((a, b) => a + b, 0)}</div>
-									<div class="text-xs text-muted-foreground">总队列</div>
-								</div>
-							</div>
 
 							<div>
 								<h4 class="text-sm font-medium mb-2">队列状态分布</h4>
