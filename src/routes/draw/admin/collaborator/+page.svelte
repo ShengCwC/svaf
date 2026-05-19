@@ -218,21 +218,21 @@
 		columnCount = getColumnCount();
 		imgColumns = Array.from({ length: columnCount }, () => []);
 		columnHeights = new Array(columnCount).fill(0);
-		if (sentinelEl) {
-			io = new IntersectionObserver(
-				(entries) => {
-					if (entries.some((e) => e.isIntersecting && !loadingMore && hasMore)) loadMoreImages();
-				},
-				{ rootMargin: '400px 0px' }
-			);
-			io.observe(sentinelEl);
-		}
 		window.addEventListener('resize', handleResize, { passive: true });
 	});
 
-	onDestroy(() => {
-		io?.disconnect();
-		window.removeEventListener('resize', handleResize);
+	// Set up observer when sentinelEl becomes available
+	(() => {
+		const el = sentinelEl;
+		if (!el) return;
+		io = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((e) => e.isIntersecting && !loadingMore && hasMore)) loadMoreImages();
+			},
+			{ rootMargin: '400px 0px' }
+		);
+		io.observe(el);
+		return () => io?.disconnect();
 	});
 
 	onDestroy(() => {
