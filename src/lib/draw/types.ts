@@ -101,6 +101,18 @@ export interface DrawFeaturedResponse {
 	total: number;
 }
 
+export interface Nomination {
+	id: string;
+	image_paths: string[];
+	collaborator_id: number;
+	status: 'pending' | 'approved' | 'rejected';
+	submitted_at: number;
+	note?: string;
+	reviewed_by?: number | null;
+	reviewed_at?: number | null;
+	admin_reason?: string | null;
+}
+
 export interface DrawTranslateResponse {
 	text: string;
 	negative: string;

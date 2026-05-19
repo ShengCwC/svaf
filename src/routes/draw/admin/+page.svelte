@@ -77,6 +77,11 @@ let loadingMore = $state(false);
 	let newBanDays = $state(7);
 	let newBanReason = $state('');
 
+	// Collaborators
+	let collaborators = $state<{ user_id: number; added_by: number; added_at: number }[]>([]);
+	let newCollaboratorId = $state('');
+	let pendingNominations = $state<Nomination[]>([]);
+
 	function fmtBanDate(ts: number): string {
 		const d = new Date((ts || 0) * 1000);
 		return d.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -521,6 +526,61 @@ $effect(() => {
 		}
 	}
 
+	async function loadCollaboratorsTab() {
+		try {
+			const [c, n] = await Promise.all([
+				admin.getCollaborators(),
+				admin.getPendingNominations()
+			]);
+			collaborators = c.collaborators;
+			pendingNominations = n.items;
+		} catch (e) {
+			showMsg('error', e instanceof Error ? e.message : '加载失败');
+		}
+	}
+
+	async function handleAddCollaborator() {
+		if (!newCollaboratorId) return;
+		loading = true;
+		try {
+			const res = await admin.addCollaborator(Number(newCollaboratorId));
+			collaborators = res.collaborators;
+			newCollaboratorId = '';
+			showMsg('success', '已添加');
+		} catch (e) {
+			showMsg('error', e instanceof Error ? e.message : '添加失败');
+		} finally {
+			loading = false;
+		}
+	}
+
+	async function handleRemoveCollaborator(userId: number) {
+		if (!confirm(`确定移除协作者 ${userId}？`)) return;
+		loading = true;
+		try {
+			const res = await admin.removeCollaborator(userId);
+			collaborators = res.collaborators;
+			showMsg('success', '已移除');
+		} catch (e) {
+			showMsg('error', e instanceof Error ? e.message : '移除失败');
+		} finally {
+			loading = false;
+		}
+	}
+
+	async function handleNominationResolve(id: string, action: 'approve' | 'reject') {
+		loading = true;
+		try {
+			await admin.resolveNomination(id, action);
+			pendingNominations = pendingNominations.filter(n => n.id !== id);
+			showMsg('success', action === 'approve' ? '已批准，图片已加入精选' : '已拒绝');
+		} catch (e) {
+			showMsg('error', e instanceof Error ? e.message : '操作失败');
+		} finally {
+			loading = false;
+		}
+	}
+
 	async function loadLimits() {
 		try {
 			const res = await admin.getLimits();
@@ -888,6 +948,9 @@ $effect(() => {
 			case 'banned':
 				loadBanned();
 				break;
+			case 'collaborators':
+				loadCollaboratorsTab();
+				break;
 			case 'limits':
 				loadLimits();
 				break;
@@ -994,6 +1057,9 @@ function formatTime(ts: number) {
 				</TabsTrigger>
 				<TabsTrigger value="banned" class="text-xs">
 					<Icon icon="mdi:account-cancel-outline" class="size-3.5 mr-1" />封禁
+					</TabsTrigger>
+					<TabsTrigger value="collaborators" class="text-xs">
+						<Icon icon="mdi:account-group-outline" class="size-3.5 mr-1" />协作者
 				</TabsTrigger>
 				<TabsTrigger value="limits" class="text-xs">
 					<Icon icon="mdi:tune-vertical" class="size-3.5 mr-1" />配置
@@ -1350,6 +1416,78 @@ function formatTime(ts: number) {
 										<Button size="sm" variant="ghost" onclick={() => handleUnban(ban.user_id)} disabled={loading}>
 											<Icon icon="mdi:account-check" class="size-4 mr-1" />解封
 										</Button>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</CardContent>
+				</Card>
+						</TabsContent>
+
+			<!-- Collaborators -->
+			<TabsContent value="collaborators" class="mt-4">
+				<Card>
+					<CardHeader>
+						<CardTitle class="text-base">协作者管理</CardTitle>
+					</CardHeader>
+					<CardContent class="space-y-3">
+						<div class="flex gap-2">
+							<Input bind:value={newCollaboratorId} placeholder="用户 ID" type="number" class="max-w-20" />
+							<Button size="sm" onclick={handleAddCollaborator} disabled={loading}>
+								<Icon icon="mdi:account-plus" class="size-4 mr-1" />添加
+							</Button>
+							<Button variant="outline" size="sm" onclick={loadCollaboratorsTab} disabled={loading}>
+								<Icon icon="mdi:refresh" class="size-4 mr-1" />刷新
+							</Button>
+						</div>
+						{#if collaborators.length === 0}
+							<div class="text-sm text-muted-foreground py-2">无协作者</div>
+						{:else}
+							<div class="space-y-1.5">
+								{#each collaborators as c}
+									<div class="flex items-center justify-between border rounded-md px-3 py-2">
+										<span class="text-sm font-mono">{c.user_id}</span>
+										<Button size="sm" variant="ghost" onclick={() => handleRemoveCollaborator(c.user_id)} disabled={loading}>
+											<Icon icon="mdi:account-remove" class="size-4 mr-1" />移除
+										</Button>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</CardContent>
+				</Card>
+
+				<Card class="mt-4">
+					<CardHeader>
+						<CardTitle class="text-base">提名审核</CardTitle>
+						<CardDescription>协作者提交的精选提名，需要你审核</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{#if pendingNominations.length === 0}
+							<div class="text-sm text-muted-foreground py-4 text-center">无待审核提名</div>
+						{:else}
+							<div class="space-y-2">
+								{#each pendingNominations as nom}
+									<div class="border rounded-lg p-3 space-y-2">
+										<div class="text-xs text-muted-foreground">
+											协作者 ID: {nom.collaborator_id} | {nom.image_paths.length} 张图片 | {new Date(nom.submitted_at * 1000).toLocaleString()}
+										</div>
+										<div class="flex flex-wrap gap-1">
+											{#each nom.image_paths as p}
+												<span class="text-[10px] bg-muted px-1 py-0.5 rounded truncate max-w-[200px]">{p}</span>
+											{/each}
+										</div>
+										{#if nom.note}
+											<div class="text-xs text-muted-foreground">备注: {nom.note}</div>
+										{/if}
+										<div class="flex gap-2">
+											<Button size="sm" variant="default" onclick={() => handleNominationResolve(nom.id, 'approve')} disabled={loading}>
+												<Icon icon="mdi:check" class="size-4 mr-1" />批准
+											</Button>
+											<Button size="sm" variant="destructive" onclick={() => handleNominationResolve(nom.id, 'reject')} disabled={loading}>
+												<Icon icon="mdi:close" class="size-4 mr-1" />拒绝
+											</Button>
+										</div>
 									</div>
 								{/each}
 							</div>

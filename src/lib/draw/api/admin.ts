@@ -6,7 +6,8 @@ import type {
 	AdminAnnouncement,
 	AdminGcResult,
 	AdminLlmConfig,
-	DrawRecommendation
+	DrawRecommendation,
+	Nomination
 } from '../types';
 
 // --- Featured ---
@@ -246,3 +247,36 @@ export async function resolveRecommendation(recId: string, action: 'approve' | '
 		json: { rec_id: recId, action, reason: reason || '' }
 	});
 }
+
+	// --- Collaborators ---
+
+	export async function getCollaborators() {
+		return drawRequest<{ collaborators: { user_id: number; added_by: number; added_at: number }[] }>('/api/draw/admin/collaborators');
+	}
+
+	export async function addCollaborator(userId: number) {
+		return drawRequest<{ ok: boolean; collaborators: any[] }>('/api/draw/admin/collaborators/add', {
+			method: 'POST',
+			json: { user_id: userId }
+		});
+	}
+
+	export async function removeCollaborator(userId: number) {
+		return drawRequest<{ ok: boolean; collaborators: any[] }>('/api/draw/admin/collaborators/remove', {
+			method: 'POST',
+			json: { user_id: userId }
+		});
+	}
+
+	// --- Nominations (admin review) ---
+
+	export async function getPendingNominations() {
+		return drawRequest<{ items: Nomination[]; total: number }>('/api/draw/admin/nominations');
+	}
+
+	export async function resolveNomination(id: string, action: 'approve' | 'reject', reason?: string) {
+		return drawRequest<{ ok: boolean }>('/api/draw/admin/nominations/resolve', {
+			method: 'POST',
+			json: { id, action, reason: reason || '' }
+		});
+	}
