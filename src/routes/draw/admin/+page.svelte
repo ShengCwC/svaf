@@ -287,8 +287,14 @@ $effect(() => {
 			const deduped = res.items.filter((v, i, a) => a.findIndex(t => t.path === v.path) === i);
 			recentImages = deduped;
 			recentTotal = res.total;
+			recentOffset = deduped.length;
+			hasMore = false;
 			selectedPaths = new Set();
-			rebuildColumns();
+			columnCount = getColumnCount();
+			imgColumns = Array.from({ length: columnCount }, () => []);
+			columnHeights = new Array(columnCount).fill(0);
+			for (const item of deduped) pushToShortest(item.path);
+			imgColumns = [...imgColumns];
 		} catch (e) {
 			showMsg('error', e instanceof Error ? e.message : '查询失败');
 		} finally {
