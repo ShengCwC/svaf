@@ -82,8 +82,6 @@
 	}
 				async function handleTranslate() {
 		if (!nlPrompt?.trim()) return;
-		translateToken = '';
-		translateTick++;
 		translating = true;
 		translateError = ''; hasTranslated = false;
 		promptsOpen = true;
@@ -146,6 +144,8 @@
 		} catch (e) {
 			translateError = '请求失败: ' + (e instanceof Error ? e.message : '未知错误');
 		} finally {
+			translateToken = '';
+			translateTick++;
 			translating = false;
 		}
 	}
