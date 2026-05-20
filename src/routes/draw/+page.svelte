@@ -189,6 +189,7 @@
 	$effect(() => {
 		if (activeTab === 'mine' && isLoggedIn) {
 			if (!myImagesLoaded) loadMyImages();
+			myQueueLoading = true;
 			loadMyQueue();
 			queueTimer = setInterval(loadMyQueue, 1000);
 			if ('Notification' in window && Notification.permission === 'default') { Notification.requestPermission(); }
@@ -396,7 +397,6 @@ async function startGeneration() {
 	}
 
 	async function loadMyQueue() {
-		if (myQueueItems.length === 0) myQueueLoading = true;
 		try {
 			const res = await fetchMyQueue();
 			const now = res.items;
@@ -740,7 +740,7 @@ async function startGeneration() {
 										<Icon icon="mdi:queue-play" class="size-4" />
 										队列状态
 									</h3>
-									<Button variant="ghost" size="sm" onclick={loadMyQueue}>
+									<Button variant="ghost" size="sm" onclick={() => { myQueueLoading = true; loadMyQueue(); }}>
 										<Icon icon="mdi:refresh" class="size-4" />
 									</Button>
 								</div>
