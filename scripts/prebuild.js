@@ -34,7 +34,7 @@ const start = Date.now();
 
 run('node', ['scripts/clean-unused-images.js', '--yes'], '步骤 1/4：清理未引用图片');
 run('node', ['scripts/sanitize-filenames.js'],           '步骤 2/4：规范化文件名');
-run('npx', ['vite', 'build'],                             '步骤 3/4：Vite 构建');
+run('pnpm', ['exec', 'vite', 'build'],                    '步骤 3/4：Vite 构建');
 run('node', ['scripts/post-images.js'],                   '步骤 4/4：图片 AVIF 转换');
 
 const elapsed = ((Date.now() - start) / 1000).toFixed(1);
