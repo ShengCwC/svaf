@@ -7,11 +7,13 @@
 	let {
 		value = $bindable(''),
 		name = $bindable(''),
-		onselect
+		onselect,
+		subdir = ''
 	}: {
 		value?: string;
 		name?: string;
 		onselect?: (tags: string, name: string) => void;
+		subdir?: string;
 	} = $props();
 
 	let open = $state(false);
@@ -43,7 +45,7 @@
 			</Dialog.Title>
 		</Dialog.Header>
 		<div class="overflow-y-auto min-h-0">
-			<StyleSelector bind:value onselect={handleSelect} showTitle={false} constrainHeight={false} />
+			<StyleSelector bind:value onselect={handleSelect} showTitle={false} constrainHeight={false} {subdir} />
 		</div>
 	</Dialog.Content>
 </Dialog.Root>

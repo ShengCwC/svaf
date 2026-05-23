@@ -8,12 +8,14 @@
 		value = $bindable(''),
 		onselect,
 		showTitle = true,
-		constrainHeight = true
+		constrainHeight = true,
+		subdir = ''
 	}: {
 		value?: string;
 		onselect?: (tags: string, name: string) => void;
 		showTitle?: boolean;
 		constrainHeight?: boolean;
+		subdir?: string;
 	} = $props();
 
 	let styles = $state<DrawStyle[]>([]);
@@ -39,7 +41,7 @@
 	async function loadStyles() {
 		loading = true;
 		try {
-			const res = await fetchStyles();
+			const res = await fetchStyles(subdir || undefined);
 			styles = res.styles;
 		} catch {
 			styles = [];

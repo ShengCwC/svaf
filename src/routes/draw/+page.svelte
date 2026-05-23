@@ -370,7 +370,7 @@ async function startGeneration(mode = 'wai') {
 					direct_prompt: finalDirectPrompt,
 					width: width || undefined,
 					height: height || undefined,
-					style_tags: mode === 'wai' ? (styleTags || undefined) : undefined,
+					style_tags: styleTags || undefined,
 					negative_prompt: negativePrompt || undefined,
 					seed: sameSeed ? forkSeed : undefined,
 					workflow_path: workflowPath,
@@ -757,7 +757,7 @@ async function startGeneration(mode = 'wai') {
 						<TabsContent value="wai" class="space-y-4 mt-4">
 							<div class="grid grid-cols-2 gap-4">
 								<WorkflowDialog bind:value={workflowPath} onselect={handleWorkflowSelect} onpromptload={handlePromptLoad} />
-								<StyleDialog bind:value={styleTags} bind:name={styleName} onselect={handleStyleSelect} />
+								<StyleDialog bind:value={styleTags} bind:name={styleName} onselect={handleStyleSelect} subdir="wai" />
 							</div>
 							<PromptForm
 								bind:turnstileToken bind:turnstileTick bind:directPrompt bind:negativePrompt bind:nlPrompt
@@ -771,7 +771,10 @@ async function startGeneration(mode = 'wai') {
 				</TabsContent>
 
 				<TabsContent value="anima" class="space-y-4 mt-4">
-					<WorkflowDialog bind:value={workflowPath} onselect={handleWorkflowSelect} onpromptload={handlePromptLoad} subdir="ANIMA" />
+					<div class="grid grid-cols-2 gap-4">
+						<WorkflowDialog bind:value={workflowPath} onselect={handleWorkflowSelect} onpromptload={handlePromptLoad} subdir="ANIMA" />
+						<StyleDialog bind:value={styleTags} bind:name={styleName} onselect={handleStyleSelect} subdir="anima" />
+					</div>
 					<PromptForm
 						bind:turnstileToken bind:turnstileTick bind:directPrompt bind:negativePrompt bind:nlPrompt
 						bind:workflowPrompt bind:workflowNegativePrompt bind:width bind:height
