@@ -913,9 +913,11 @@ async function startGeneration(mode = 'wai') {
 
 						{#if myImagesLoading}
 							<div class="text-xs text-muted-foreground py-8 text-center">加载中...</div>
-						{:else if myImages.length === 0}
+						{/if}
+						{#if !myImagesLoading && myImages.length === 0}
 							<div class="text-xs text-muted-foreground py-8 text-center">你还没有生成过图片</div>
-						{:else}
+						{/if}
+						{#if !myImagesLoading && myImages.length > 0}
 							<div class="flex gap-2 items-start">
 								{#each imgColumns as col, ci (ci)}
 									<div class="flex flex-1 flex-col gap-2 min-w-0">
@@ -953,9 +955,8 @@ async function startGeneration(mode = 'wai') {
 									</Button>
 								</div>
 							{/if}
+							</div>
 						{/if}
-					</div>
-
 				{/if}
 			{/if}
 		</TabsContent>
