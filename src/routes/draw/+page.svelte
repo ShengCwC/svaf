@@ -940,7 +940,9 @@ async function startGeneration() {
 	<Dialog.Content class="max-w-md">
 		<Dialog.Header>
 			<Dialog.Title>📢 公告</Dialog.Title>
-			<Dialog.Description class="text-sm leading-relaxed">{ANNOUNCEMENT_TEXT}</Dialog.Description>
+			<Dialog.Description class="text-sm leading-relaxed">
+				{@html ANNOUNCEMENT_TEXT.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline">$1</a>')}
+			</Dialog.Description>
 		</Dialog.Header>
 	</Dialog.Content>
 </Dialog.Root>
