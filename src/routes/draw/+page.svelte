@@ -17,10 +17,6 @@
 
 	let announcementOpen = $state(false);
 
-	function closeAnnouncement() {
-		announcementOpen = false;
-	}
-
 	import PageViews from '$lib/components/PageViews.svelte';
 
 	import EnvironmentSwitcher from '$lib/components/draw/EnvironmentSwitcher.svelte';

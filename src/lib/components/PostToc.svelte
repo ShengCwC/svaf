@@ -107,8 +107,9 @@
 		const el = document.getElementById(id);
 		if (!el) return;
 		e.preventDefault();
+		activeId = id;
 		const top = el.getBoundingClientRect().top + window.scrollY - 72;
-		window.scrollTo({ top, behavior: 'smooth' });
+		window.scrollTo({ top, behavior: 'instant' });
 		history.replaceState(null, '', `#${id}`);
 		tocFloating.setOpen(false);
 	}
