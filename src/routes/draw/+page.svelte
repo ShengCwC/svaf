@@ -21,6 +21,7 @@
 
 	import EnvironmentSwitcher from '$lib/components/draw/EnvironmentSwitcher.svelte';
 	import WorkflowDialog from '$lib/components/draw/WorkflowDialog.svelte';
+	import StyleDialog from '$lib/components/draw/StyleDialog.svelte';
 	import PromptForm from '$lib/components/draw/PromptForm.svelte';
 	
 	import FeaturedTab from '$lib/components/draw/FeaturedTab.svelte';
@@ -51,6 +52,8 @@
 	// Form state
 	let workflowPath = $state('');
 	let workflowName = $state('');
+	let styleTags = $state('');
+	let styleName = $state('');
 	let directPrompt = $state('');
 	let workflowPrompt = $state("");
 	let inlineWorkflowApi = $state<Record<string, any> | null>(null);
@@ -73,6 +76,8 @@
 					if (localStorage.getItem('wf_prompt')) workflowPrompt = localStorage.getItem('wf_prompt')!;
 					if (localStorage.getItem('wf_neg_prompt')) workflowNegativePrompt = localStorage.getItem('wf_neg_prompt')!;
 					if (p.workflowName) workflowName = p.workflowName;
+					if (p.styleTags) styleTags = p.styleTags;
+					if (p.styleName) styleName = p.styleName;
 					if (p.directPrompt) directPrompt = p.directPrompt;
 					if (p.negativePrompt) negativePrompt = p.negativePrompt;
 					if (p.nlPrompt) nlPrompt = p.nlPrompt;
@@ -96,6 +101,8 @@
 					inlineWorkflow = null;
 					if (d.workflow_path) workflowPath = d.workflow_path;
 					if (d.workflow_name) workflowName = d.workflow_name;
+					if (d.style_tags) { styleTags = d.style_tags; styleName = d.style_tags; }
+					else { styleTags = ''; styleName = ''; }
 					localStorage.removeItem("draw-fork-pending");
 				}
 			} catch {}
@@ -188,7 +195,7 @@
 		}
 	});
 
-	const state = $derived({ workflowPath, workflowName, directPrompt, negativePrompt, nlPrompt, width, height, forkSeed, sameSeed });
+	const state = $derived({ workflowPath, workflowName, styleTags, styleName, directPrompt, negativePrompt, nlPrompt, width, height, forkSeed, sameSeed });
 
 		// Persist form state to localStorage
 	$effect(() => {
@@ -245,6 +252,13 @@
 			if (res.workflow_path && res.workflow_path !== 'fork') workflowPath = res.workflow_path;
 			if (res.workflow_name) workflowName = res.workflow_name;
 				else workflowName = inlineWorkflow ? '(fork)' : '';
+			if (res.style_tags) {
+				styleTags = res.style_tags;
+				styleName = res.style_tags;
+			} else {
+				styleTags = '';
+				styleName = '';
+			}
 			console.log('[FORK] $effect setting activeTab=generate');
 				activeTab = 'generate';
 		}
@@ -286,6 +300,11 @@
 		sameSeed = false;
 	}
 
+	function handleStyleSelect(tags: string, name: string) {
+		styleTags = tags;
+		styleName = name;
+	}
+
 	function handlePromptLoad(positive: string, negative: string) {
 			directPrompt = positive;
 			negativePrompt = negative;
@@ -317,7 +336,7 @@
 				styleTags = '';
 				styleName = '';
 			}
-			localStorage.setItem('draw-fork-pending', JSON.stringify({ workflow_api: res.workflow_api || null, builtin_prompt: res.builtin_prompt || '', builtin_negative_prompt: res.builtin_negative_prompt || '', default_width: res.default_width || null, default_height: res.default_height || null, seed: res.seed, workflow_path: res.workflow_path || '', workflow_name: res.workflow_name || '' }));
+			localStorage.setItem('draw-fork-pending', JSON.stringify({ workflow_api: res.workflow_api || null, builtin_prompt: res.builtin_prompt || '', builtin_negative_prompt: res.builtin_negative_prompt || '', default_width: res.default_width || null, default_height: res.default_height || null, seed: res.seed, style_tags: res.style_tags || '', workflow_path: res.workflow_path || '', workflow_name: res.workflow_name || '' }));
 			forkMessage = 'Fork 成功';
 			console.log('[FORK] success done');
 		} catch (e: any) {
@@ -351,7 +370,7 @@ async function startGeneration(mode = 'wai') {
 					direct_prompt: finalDirectPrompt,
 					width: width || undefined,
 					height: height || undefined,
-
+					style_tags: mode === 'wai' ? (styleTags || undefined) : undefined,
 					negative_prompt: negativePrompt || undefined,
 					seed: sameSeed ? forkSeed : undefined,
 					workflow_path: workflowPath,
@@ -738,6 +757,7 @@ async function startGeneration(mode = 'wai') {
 						<TabsContent value="wai" class="space-y-4 mt-4">
 							<div class="grid grid-cols-2 gap-4">
 								<WorkflowDialog bind:value={workflowPath} onselect={handleWorkflowSelect} onpromptload={handlePromptLoad} />
+								<StyleDialog bind:value={styleTags} bind:name={styleName} onselect={handleStyleSelect} />
 							</div>
 							<PromptForm
 								bind:turnstileToken bind:turnstileTick bind:directPrompt bind:negativePrompt bind:nlPrompt
