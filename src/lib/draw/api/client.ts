@@ -239,7 +239,7 @@ export async function fetchPlans() {
 }
 
 export async function fetchPointsConfig() {
-	return drawRequest<{ text_to_image: number; image_to_image: number; llm_translate: number }>('/api/draw/admin/points-config');
+	return drawRequest<{ text_to_image: number; image_to_image: number; llm_translate: number }>('/api/wallet/points-config');
 }
 
 function _appendToken(url: URL): string {

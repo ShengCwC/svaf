@@ -30,6 +30,8 @@
 		forkSeed = $bindable<number | undefined>(undefined),
 			turnstileToken = $bindable(''),
 			turnstileTick = $bindable(0),
+		pointsCostTranslate = 0,
+		pointsCostSubmit = 0,
 	}: {
 		directPrompt?: string;
 		negativePrompt?: string;
@@ -47,6 +49,8 @@
 		otherStage?: string;
 		sameSeed?: boolean;
 		forkSeed?: number;
+		pointsCostTranslate?: number;
+		pointsCostSubmit?: number;
 	} = $props();
 
 	let resolutions = $state<DrawResolution[]>([]);
@@ -183,6 +187,7 @@
 			<Button size="sm" variant="outline" onclick={handleTranslate} disabled={translating || !nlPrompt?.trim()}>
 				<Icon icon={translating ? "mdi:loading" : "mdi:auto-fix"} class="size-4 mr-1 {translating ? 'animate-spin' : ''}" />
 				{translating ? "转换中..." : "转换"}
+				{#if pointsCostTranslate > 0}<Badge variant="secondary" class="ml-1 text-[10px] px-1">⚡{pointsCostTranslate}</Badge>{/if}
 			</Button>
 			{#if workflowPrompt && (directPrompt !== workflowPrompt || negativePrompt !== workflowNegativePrompt)}
 				<Button size="sm" variant="outline" onclick={() => { directPrompt = workflowPrompt; negativePrompt = workflowNegativePrompt; llmPrompt = ''; hasTranslated = false; }}>
@@ -296,6 +301,7 @@
 		{:else}
 			<Icon icon="mdi:playlist-plus" class="size-5 mr-1.5" />
 			加入队列
+			{#if pointsCostSubmit > 0}<Badge variant="secondary" class="ml-1.5 text-[10px] px-1">⚡{pointsCostSubmit}</Badge>{/if}
 		{/if}
 	</Button>
 </div>

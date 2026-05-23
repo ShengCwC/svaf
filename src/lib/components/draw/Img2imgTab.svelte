@@ -15,9 +15,11 @@
 	let {
 		turnstileToken = $bindable(''),
 			turnstileTick = $bindable(0),
+		pointsCostSubmit = 0,
 	}: {
 		turnstileToken?: string;
 			turnstileTick?: number;
+		pointsCostSubmit?: number;
 	} = $props();
 
 	let currentBaseUrl = $state('');
@@ -374,6 +376,7 @@
 		{:else}
 			<Icon icon="mdi:playlist-plus" class="size-5 mr-1.5" />
 			加入队列
+			{#if pointsCostSubmit > 0}<Badge variant="secondary" class="ml-1.5 text-[10px] px-1">⚡{pointsCostSubmit}</Badge>{/if}
 		{/if}
 	</Button>
 

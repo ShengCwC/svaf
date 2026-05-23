@@ -9,7 +9,7 @@
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { drawEnv, apiError, apiStatus, resolveApiRedirect } from '$lib/draw/stores/env';
 	import { connectStatusWs } from '$lib/draw/api/ws';
-	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage, recommendImage, deleteMyImage, fetchMyRecommendations, addToQueue, fetchMyQueue, fetchWalletBalance, createWalletOrder, fetchPlans } from '$lib/draw/api/client';
+	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage, recommendImage, deleteMyImage, fetchMyRecommendations, addToQueue, fetchMyQueue, fetchWalletBalance, createWalletOrder, fetchPlans, fetchPointsConfig } from '$lib/draw/api/client';
 	import { consumeFork } from '$lib/draw/stores/fork';
 	import { onMount, onDestroy } from 'svelte';
 	import type { WsStatusEvent, DrawWorkflow, DrawRecommendation } from '$lib/draw/types';
@@ -36,6 +36,7 @@
 	let rechargeOpen = $state(false);
 	let recharging = $state(false);
 	let plans = $state<Array<{ id: string; name: string; url: string; points: number }>>([]);
+	let pointsConfig = $state<{ text_to_image: number; image_to_image: number; llm_translate: number } | null>(null);
 	let queuing = $state(false);
 	let queueSuccess = $state("");
 	let queueError = $state("");
@@ -212,9 +213,11 @@
 		if (isLoggedIn) {
 			loadWalletBalance();
 			fetchPlans().then(r => plans = r.items).catch(() => {});
+			fetchPointsConfig().then(r => pointsConfig = r).catch(() => {});
 		} else {
 			walletBalance = null;
 			plans = [];
+			pointsConfig = null;
 		}
 	});
 
@@ -743,6 +746,8 @@ async function startGeneration() {
 						busy={queuing}
 						bind:sameSeed
 						bind:forkSeed
+						pointsCostTranslate={pointsConfig?.llm_translate ?? 0}
+						pointsCostSubmit={pointsConfig?.text_to_image ?? 0}
 					/>
 
 					{#if queueSuccess}
@@ -761,7 +766,7 @@ async function startGeneration() {
 				</TabsContent>
 
 				<TabsContent value="img2img" class="mt-4">
-					<Img2imgTab bind:turnstileToken bind:turnstileTick />
+					<Img2imgTab bind:turnstileToken bind:turnstileTick pointsCostSubmit={pointsConfig?.image_to_image ?? 0} />
 				</TabsContent>
 
 			</Tabs>
