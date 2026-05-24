@@ -822,7 +822,7 @@ async function startGeneration(mode = 'wai') {
 						<TabsContent value="wai" class="space-y-4 mt-4">
 							<div class="grid grid-cols-2 gap-4">
 								<WorkflowDialog bind:value={workflowPath} onselect={handleWorkflowSelect} onpromptload={handlePromptLoad} />
-								<StyleDialog bind:value={styleTags} bind:name={styleName} onselect={handleStyleSelect} subdir="wai" />
+								<StyleDialog bind:value={styleTags} bind:name={styleName} onselect={handleStyleSelect} prefix="by " />
 							</div>
 							<PromptForm
 								bind:turnstileToken bind:turnstileTick bind:directPrompt bind:negativePrompt bind:nlPrompt
@@ -838,7 +838,7 @@ async function startGeneration(mode = 'wai') {
 				<TabsContent value="anima" class="space-y-4 mt-4">
 					<div class="grid grid-cols-2 gap-4">
 						<WorkflowDialog bind:value={workflowPath} onselect={handleWorkflowSelect} onpromptload={handlePromptLoad} subdir="ANIMA" />
-						<StyleDialog bind:value={styleTags} bind:name={styleName} onselect={handleStyleSelect} subdir="anima" />
+						<StyleDialog bind:value={styleTags} bind:name={styleName} onselect={handleStyleSelect} prefix="@" />
 					</div>
 					<PromptForm
 						bind:turnstileToken bind:turnstileTick bind:directPrompt bind:negativePrompt bind:nlPrompt

@@ -9,13 +9,13 @@
 		onselect,
 		showTitle = true,
 		constrainHeight = true,
-		subdir = ''
+		prefix = ''
 	}: {
 		value?: string;
 		onselect?: (tags: string, name: string) => void;
 		showTitle?: boolean;
 		constrainHeight?: boolean;
-		subdir?: string;
+		prefix?: string;
 	} = $props();
 
 	let styles = $state<DrawStyle[]>([]);
@@ -41,7 +41,7 @@
 	async function loadStyles() {
 		loading = true;
 		try {
-			const res = await fetchStyles(subdir || undefined);
+			const res = await fetchStyles();
 			styles = res.styles;
 		} catch {
 			styles = [];
@@ -51,12 +51,13 @@
 	}
 
 	function toggleStyle(s: DrawStyle) {
-		if (value === s.tags) {
+		const tag = prefix + s.tags;
+		if (value === tag) {
 			value = '';
 			onselect?.('', '');
 		} else {
-			value = s.tags;
-			onselect?.(s.tags, s.name || s.tags);
+			value = tag;
+			onselect?.(tag, s.name || s.tags);
 		}
 	}
 </script>
