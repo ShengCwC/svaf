@@ -1,8 +1,9 @@
 <script lang="ts">
-	import Icon from '@iconify/svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Alert, AlertDescription } from '$lib/components/ui/alert';
-	import { Badge } from '$lib/components/ui/badge';
+import Icon from '@iconify/svelte';
+import { Button } from '$lib/components/ui/button';
+import { Label } from '$lib/components/ui/label';
+import { Alert, AlertDescription } from '$lib/components/ui/alert';
+import { Badge } from '$lib/components/ui/badge';
 	import { forumAuth } from '$lib/forum/stores/auth';
 	import { drawEnv, apiError } from '$lib/draw/stores/env';
 	import TurnstileWidget from '$lib/components/TurnstileWidget.svelte';
@@ -15,11 +16,13 @@
 	let {
 		turnstileToken = $bindable(''),
 			turnstileTick = $bindable(0),
+		pointsCostTranslate = 0,
 		pointsCostSubmit = 0,
 		turnstileEnabled = true,
 	}: {
 		turnstileToken?: string;
 			turnstileTick?: number;
+		pointsCostTranslate?: number;
 		pointsCostSubmit?: number;
 		turnstileEnabled?: boolean;
 	} = $props();
@@ -32,8 +35,10 @@
 	let images = $state<{ file: File; dataUrl: string }[]>([]);
 	let dragIndex = $state<number | null>(null);
 	let dragOverIndex = $state<number | null>(null);
-	let prompt = $state('');
+	let cnPrompt = $state('');
+	let enPrompt = $state('');
 	let uploading = $state(false);
+	let translating = $state(false);
 	let uploadProgress = $state(0);
 	let error = $state('');
 	let queueSuccess = $state('');
@@ -140,7 +145,8 @@
 			const saved = localStorage.getItem(STORAGE_KEY);
 			if (!saved) return;
 			const parsed = JSON.parse(saved);
-			if (parsed.prompt) prompt = parsed.prompt;
+			if (parsed.cnPrompt) cnPrompt = parsed.cnPrompt;
+			if (parsed.enPrompt) enPrompt = parsed.enPrompt;
 			if (parsed.images?.length) {
 				for (const dataUrl of parsed.images) {
 					fetch(dataUrl)
@@ -159,7 +165,7 @@
 	function saveState() {
 		try {
 			if (typeof localStorage === 'undefined') return;
-			const data: any = { prompt };
+			const data: any = { cnPrompt, enPrompt };
 			const savedDataUrls = images.map(i => i.dataUrl).filter(u => u.startsWith('data:'));
 			if (savedDataUrls.length) data.images = savedDataUrls;
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -197,9 +203,34 @@
 		saveState();
 	}
 
-	function handlePromptInput(e: Event) {
-		const el = e.target as HTMLTextAreaElement;
-		prompt = el.value;
+	async function handleTranslate() {
+		if (!cnPrompt.trim() || translating) return;
+		translating = true;
+		try {
+			const token = forumAuth.getToken();
+			const baseUrl = get(drawEnv.baseUrl);
+			const resp = await fetch(`${baseUrl}/api/translate`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+				body: JSON.stringify({ prompt: cnPrompt, mode: 'anima' }),
+			});
+			const data = await resp.json();
+			if (data.ok) { enPrompt = data.positive; saveState(); }
+			else error = data.error || '翻译失败';
+		} catch (e) {
+			error = '翻译失败: ' + (e instanceof Error ? e.message : '未知错误');
+		} finally {
+			translating = false;
+		}
+	}
+
+	function handleCnInput(e: Event) {
+		cnPrompt = (e.target as HTMLTextAreaElement).value;
+		saveState();
+	}
+
+	function handleEnInput(e: Event) {
+		enPrompt = (e.target as HTMLTextAreaElement).value;
 		saveState();
 	}
 	async function doUpload(): Promise<{ image1_name: string; image2_name: string }> {
@@ -236,7 +267,7 @@
 			error = '请先在论坛登录';
 			return;
 		}
-		if (!prompt.trim()) {
+		if (!enPrompt.trim() && !cnPrompt.trim()) {
 			error = '请输入描述';
 			return;
 		}
@@ -249,7 +280,7 @@
 		try {
 			const uploadData = await doUpload();
 			await addToQueue({
-				direct_prompt: prompt.trim(),
+				direct_prompt: enPrompt.trim() || cnPrompt.trim(),
 				image1_name: uploadData.image1_name,
 				image2_name: uploadData.image2_name || '',
 					turnstile_token: turnstileToken || undefined,
@@ -350,13 +381,36 @@
 			<Icon icon="mdi:text-box-outline" class="size-4" />
 			描述
 		</h3>
-		<textarea
-			value={prompt}
-			oninput={handlePromptInput}
-			placeholder="输入你想要的修改描述，例如：把人物的衣服换成红色"
-			class="w-full min-h-[80px] rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
-			disabled={uploading}
-		></textarea>
+		<div class="space-y-1">
+			<Label class="text-xs text-muted-foreground">中文描述</Label>
+			<textarea
+				value={cnPrompt}
+				oninput={handleCnInput}
+				placeholder="把人物的衣服换成红色"
+				class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
+				rows={2}
+				disabled={uploading}
+			></textarea>
+		</div>
+		<div class="flex items-center gap-2">
+			<Button size="sm" variant="outline" onclick={handleTranslate} disabled={translating || !cnPrompt.trim()}>
+				<Icon icon={translating ? "mdi:loading" : "mdi:auto-fix"} class="size-4 mr-1 {translating ? 'animate-spin' : ''}" />
+				{translating ? "转换中..." : "翻译为英文"}
+				{#if pointsCostTranslate > 0}<Badge variant="secondary" class="ml-1 text-[10px] px-1">⚡{pointsCostTranslate}</Badge>{/if}
+			</Button>
+			<span class="text-[11px] text-muted-foreground">支持中文，但英文遵从度更好</span>
+		</div>
+		<div class="space-y-1">
+			<Label class="text-xs text-muted-foreground">英文描述（最终使用的提示词）</Label>
+			<textarea
+				value={enPrompt}
+				oninput={handleEnInput}
+				placeholder="change the character's clothes to red"
+				class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
+				rows={3}
+				disabled={uploading}
+			></textarea>
+		</div>
 	</div>
 
 	{#if turnstileEnabled}

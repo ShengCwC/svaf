@@ -907,7 +907,7 @@ async function startGeneration(mode = 'wai') {
 				</TabsContent>
 
 				<TabsContent value="img2img" class="mt-4">
-					<Img2imgTab bind:turnstileToken bind:turnstileTick pointsCostSubmit={pointsConfig?.image_to_image ?? 0} turnstileEnabled={pointsConfig?.turnstile_enabled ?? true} />
+					<Img2imgTab bind:turnstileToken bind:turnstileTick pointsCostTranslate={pointsConfig?.llm_translate ?? 0} pointsCostSubmit={pointsConfig?.image_to_image ?? 0} turnstileEnabled={pointsConfig?.turnstile_enabled ?? true} />
 				</TabsContent>
 
 			</Tabs>
