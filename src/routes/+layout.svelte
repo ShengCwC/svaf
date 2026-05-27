@@ -12,6 +12,7 @@
 	import DashLoader from '$lib/components/DashLoader.svelte';
 	import Toast from '$lib/components/Toast.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import PageViews from '$lib/components/PageViews.svelte';
 
 	let { children } = $props();
 
@@ -90,6 +91,10 @@
 
 <div class={isHomePage ? '' : 'pt-14'}>
 	{@render children()}
+</div>
+
+<div class="text-center py-4">
+	<PageViews pathname={$page.url.pathname} class="text-xs text-muted-foreground" />
 </div>
 
 <Footer />
