@@ -49,7 +49,7 @@
 		const fs = fontSize[0];
 		const op = opacity[0];
 		ctx.font = `bold ${fs}px sans-serif`;
-		ctx.fillStyle = `rgba(255,255,255,${op / 100})`;
+		ctx.fillStyle = op >= 100 ? '#ffffff' : `rgba(255,255,255,${op / 100})`;
 		ctx.textBaseline = 'bottom';
 
 		const textWidth = ctx.measureText(text).width;
@@ -60,7 +60,7 @@
 			const spacingY = fs + 60;
 			for (let y = padding; y < canvas.height; y += spacingY) {
 				for (let x = padding; x < canvas.width; x += spacingX) {
-					ctx.globalAlpha = opacity / 100 * 0.5;
+					ctx.globalAlpha = op >= 100 ? 0.5 : (op / 100) * 0.5;
 					ctx.fillText(text, x, y);
 				}
 			}
@@ -146,7 +146,7 @@
 				{/if}
 			</div>
 			<div class="space-y-1.5">
-				<Label class="text-xs">透明度 ({opacity[0]}%)</Label>
+				<Label class="text-xs">不透明度 ({opacity[0]}%)</Label>
 				<Slider bind:value={opacity} min={5} max={100} step={1} />
 			</div>
 		</CardContent>
