@@ -263,11 +263,11 @@
 			</div>
 		</div>
 
-		<Dialog.Footer class="flex-col gap-2">
-			<Button variant="destructive" class="w-full" onclick={withdrawConsent}>
+		<Dialog.Footer class="flex-col gap-2 sm:flex-col sm:justify-center items-center">
+			<Button variant="destructive" class="w-full max-w-xs" onclick={withdrawConsent}>
 				<Icon icon="mdi:close-circle-outline" class="size-4 mr-1" />撤回同意
 			</Button>
-			<Button class="w-full" onclick={saveCustomPreferences} disabled={!agreed}>
+			<Button class="w-full max-w-xs" onclick={saveCustomPreferences} disabled={!agreed}>
 				保存设置
 			</Button>
 		</Dialog.Footer>
