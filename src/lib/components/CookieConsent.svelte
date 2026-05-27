@@ -264,8 +264,8 @@
 		</div>
 
 		<Dialog.Footer class="flex-wrap gap-2">
-			<Button variant="ghost" size="sm" onclick={withdrawConsent} class="text-destructive hover:text-destructive">
-				<Icon icon="mdi:close-circle-outline" class="size-3.5 mr-1" />撤回同意
+			<Button variant="destructive" onclick={withdrawConsent}>
+				<Icon icon="mdi:close-circle-outline" class="size-4 mr-1" />撤回同意
 			</Button>
 			<div class="flex-1" />
 			<Button variant="outline" onclick={acceptNecessary} disabled={!agreed}>
