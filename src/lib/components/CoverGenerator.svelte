@@ -408,15 +408,14 @@
 				})
 				.then((svg) => {
 					let processedSvg = svg
-						.replace(/width="[^"]*"/g, '')
-						.replace(/height="[^"]*"/g, '');
-					processedSvg = processedSvg.replace(
-						/<svg\b([^>]*)>/,
-						'<svg$1 width="100%" height="100%" preserveAspectRatio="xMidYMid meet">'
-					);
-					if (!useOriginalIconColor) {
-						processedSvg = processedSvg.replace(/fill="[^"]*"/g, `fill="${iconColor}"`);
-					}
+						.replace(
+							/<svg\b([^>]*)>/,
+							'<svg$1 width="100%" height="100%" preserveAspectRatio="xMidYMid meet">'
+						)
+						.replace(/currentColor/gi, iconColor)
+						.replace(/fill="[^"]*"/g, (m) => {
+							return useOriginalIconColor ? m : `fill="${iconColor}"`;
+						});
 					iconSvg = processedSvg;
 				})
 				.catch(() => {
