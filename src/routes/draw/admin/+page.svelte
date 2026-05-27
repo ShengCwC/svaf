@@ -1146,12 +1146,15 @@ function formatTime(ts: number) {
 						</Button>
 					</div>
 				</div>
-				{#if recSelectMode && recSelected.size > 0}
+				{#if recSelectMode}
 					<div class="flex flex-wrap items-center gap-2 mb-3 p-2 rounded-lg border bg-muted/30">
 						<span class="text-xs text-muted-foreground">已选 {recSelected.size} 个</span>
-						<Button size="sm" variant="default" onclick={() => batchResolveRecs('approve')} disabled={loading}>通过选中</Button>
-						<Input bind:value={batchRejectReason} placeholder="拒绝理由" class="h-8 text-xs min-w-0 w-40" />
-						<Button size="sm" variant="destructive" onclick={() => batchResolveRecs('reject')} disabled={loading}>拒绝选中</Button>
+						<Button size="sm" variant="outline" onclick={() => {
+							if (recSelected.size === recommendations.length) recSelected = new Set();
+							else recSelected = new Set(recommendations.map(r => r.id));
+						}}>{recSelected.size === recommendations.length ? '取消全选' : '全选'}</Button>
+						<Button size="sm" variant="default" onclick={() => batchResolveRecs('approve')} disabled={loading || recSelected.size === 0}>通过选中</Button>
+						<Button size="sm" variant="destructive" onclick={() => batchResolveRecs('reject')} disabled={loading || recSelected.size === 0}>拒绝选中</Button>
 					</div>
 				{/if}
 				{#if recommendations.length === 0}
