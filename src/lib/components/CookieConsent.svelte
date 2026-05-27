@@ -154,7 +154,11 @@
 					<span>和</span>
 				<button type="button" class="text-primary underline hover:text-primary/80" onclick={() => overlayContent = 'privacy'}>《隐私政策》</button>
 			</div>
-			<div class="text-[10px] text-muted-foreground">您还需要完整阅读《用户协议》和《隐私政策》后方可勾选该复选框</div>
+			{#if !canAgree}
+				<div class="text-[10px] text-muted-foreground">
+					您还需要完整阅读{!readAgreement ? '《用户协议》' : ''}{!readAgreement && !readPrivacy ? '和' : ''}{!readPrivacy ? '《隐私政策》' : ''}后方可勾选该复选框
+				</div>
+			{/if}
 		</label>
 
 						<div class="flex flex-wrap gap-3">
@@ -196,7 +200,11 @@
 								<span>和</span>
 								<button type="button" class="text-primary underline hover:text-primary/80" onclick={() => overlayContent = 'privacy'}>《隐私政策》</button>
 							</div>
-							<div class="text-[10px] text-muted-foreground">您还需要完整阅读《用户协议》和《隐私政策》后方可勾选该复选框</div>
+							{#if !canAgree}
+								<div class="text-[10px] text-muted-foreground">
+									您还需要完整阅读{!readAgreement ? '《用户协议》' : ''}{!readAgreement && !readPrivacy ? '和' : ''}{!readPrivacy ? '《隐私政策》' : ''}后方可勾选该复选框
+								</div>
+							{/if}
 						</label>
 
 			<!-- 必要 Cookie -->
