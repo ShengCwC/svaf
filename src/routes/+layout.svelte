@@ -89,7 +89,7 @@
 <style>
 </style>
 
-<div class={isHomePage ? '' : 'pt-14'}>
+<div class="pt-14">
 	{@render children()}
 </div>
 

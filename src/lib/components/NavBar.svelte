@@ -31,10 +31,9 @@
 	});
 </script>
 
-<nav class="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-	<div class="relative flex h-14 items-center justify-between px-4">
-		<div class="flex items-center gap-1 min-w-0">
-			{#if !isHomePage}
+	<nav class="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+		<div class="relative flex h-14 items-center justify-between px-4">
+			<div class="flex items-center gap-1 min-w-0">
 				<a href="/" class="shrink-0 hover:opacity-80 transition-opacity">
 					<img src={siteConfig.icon} alt="Home" class="h-6 w-6 rounded-full" />
 				</a>
@@ -46,10 +45,9 @@
 						<span class="text-xs text-foreground font-medium truncate shrink min-w-0">{crumb.label}</span>
 					{/if}
 				{/each}
-			{/if}
+			</div>
+			<div class="flex items-center gap-2 shrink-0 ml-2">
+				<ThemeToggle />
+			</div>
 		</div>
-		<div class="flex items-center gap-2 shrink-0 ml-2">
-			<ThemeToggle />
-		</div>
-	</div>
-</nav>
+	</nav>

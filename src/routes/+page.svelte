@@ -120,9 +120,6 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col items-center justify-center gap-6 px-4">
-	<div class="fixed top-4 right-4 z-50">
-		<ThemeToggle />
-	</div>
 	<div class="mo-fade-in-up" use:fadeInUp>
 		<Announcement />
 	</div>
