@@ -199,10 +199,11 @@
 	let activeTab = $state(location.hash?.slice(1) || 'generate');
 	let genSubTab = $state(location.hash?.includes('img2img') ? 'img2img' : location.hash?.includes('saloon') ? 'saloon' : 'txt2img');
 	let genTxtSubTab = $state((typeof localStorage !== 'undefined' && localStorage.getItem('draw-txt-sub-tab')) || 'wai');
-	let saloonMode = $derived(workflowPath?.startsWith('ANIMA/') ? 'anima' : 'wai');
+	let saloonMode = $state((typeof localStorage !== 'undefined' && localStorage.getItem('draw-txt-sub-tab')) || 'wai');
 
 	$effect(() => {
 		try { localStorage.setItem('draw-txt-sub-tab', genTxtSubTab); } catch {}
+		saloonMode = genTxtSubTab;
 	});
 
 	// 从 URL hash 恢复 tab 状态
@@ -853,10 +854,10 @@ async function startGeneration(mode = 'wai') {
 				<TabsContent value="txt2img" class="space-y-4 mt-4">
 					<Tabs bind:value={genTxtSubTab} class="w-full">
 						<TabsList class="w-full">
-							<TabsTrigger value="wai" class="flex-1 text-xs">WAI
+							<TabsTrigger value="wai" class="flex-1 text-xs" onclick={() => genTxtSubTab = 'wai'}>WAI
 								<button onclick={(e) => { e.stopPropagation(); waiHelpOpen = true; }} class="inline-flex items-center justify-center size-4 rounded-full border border-muted-foreground/40 text-muted-foreground text-[10px] font-bold ml-1 hover:border-primary hover:text-primary transition-colors" title="关于 WAI">?</button>
 							</TabsTrigger>
-							<TabsTrigger value="anima" class="flex-1 text-xs">Anima
+							<TabsTrigger value="anima" class="flex-1 text-xs" onclick={() => genTxtSubTab = 'anima'}>Anima
 								<button onclick={(e) => { e.stopPropagation(); animaHelpOpen = true; }} class="inline-flex items-center justify-center size-4 rounded-full border border-muted-foreground/40 text-muted-foreground text-[10px] font-bold ml-1 hover:border-primary hover:text-primary transition-colors" title="关于 Anima">?</button>
 							</TabsTrigger>
 						</TabsList>
