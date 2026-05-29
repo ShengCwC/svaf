@@ -199,11 +199,10 @@
 	let activeTab = $state(location.hash?.slice(1) || 'generate');
 	let genSubTab = $state(location.hash?.includes('img2img') ? 'img2img' : location.hash?.includes('saloon') ? 'saloon' : 'txt2img');
 	let genTxtSubTab = $state((typeof localStorage !== 'undefined' && localStorage.getItem('draw-txt-sub-tab')) || 'wai');
-	let saloonMode = $state((typeof localStorage !== 'undefined' && localStorage.getItem('draw-txt-sub-tab')) || 'wai');
+	let selectedMode = $state((typeof localStorage !== 'undefined' && localStorage.getItem('draw-txt-sub-tab')) || 'wai');
 
 	$effect(() => {
 		try { localStorage.setItem('draw-txt-sub-tab', genTxtSubTab); } catch {}
-		saloonMode = genTxtSubTab;
 	});
 
 	// 从 URL hash 恢复 tab 状态
@@ -336,6 +335,8 @@
 		workflowName = wf.path.split('/').pop()?.replace(/\.(json|txt)$/, '') || '';
 		forkSeed = undefined;
 		sameSeed = false;
+		// 记录选工作流时的模式
+		selectedMode = genTxtSubTab;
 	}
 
 	function handleStyleSelect(tags: string, name: string) {
@@ -916,7 +917,7 @@ async function startGeneration(mode = 'wai') {
 				</TabsContent>
 
 				<TabsContent value="saloon" class="mt-4">
-					<SaloonTab {workflowPath} {styleTags} {negativePrompt} {width} {height} {turnstileToken} pointsCostSubmit={saloonMode === 'anima' ? (pointsConfig?.text_to_image_anima ?? 20) : (pointsConfig?.text_to_image ?? 0)} mode={saloonMode} />
+					<SaloonTab {workflowPath} {styleTags} {negativePrompt} {width} {height} {turnstileToken} pointsCostSubmit={selectedMode === 'anima' ? (pointsConfig?.text_to_image_anima ?? 20) : (pointsConfig?.text_to_image ?? 0)} mode={selectedMode} />
 				</TabsContent>
 
 			</Tabs>
