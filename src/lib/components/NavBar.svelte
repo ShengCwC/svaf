@@ -2,8 +2,7 @@
 	import { page } from '$app/stores';
 	import { siteConfig } from '$lib/config/site';
 	import ThemeToggle from './ThemeToggle.svelte';
-	import { slide } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
+	import { fly } from 'svelte/transition';
 
 	let spinRaf = $state(0);
 	let spinStart = $state(0);
@@ -47,12 +46,14 @@
 				<img src={siteConfig.icon} alt="Home" class="h-6 w-6 rounded-full" style="transform: rotate({spinDeg}deg);" />
 			</a>
 			{#each crumbs as crumb, i (crumb.href)}
-				<span transition:slide={{ duration: 200, easing: quintOut }} class="text-muted-foreground/40 mx-0.5 shrink-0">/</span>
-				{#if i < crumbs.length - 1}
-					<a href={crumb.href} transition:slide={{ duration: 200, easing: quintOut }} class="text-xs text-muted-foreground hover:text-foreground truncate transition-colors shrink min-w-0 inline-block">{crumb.label}</a>
-				{:else}
-					<span transition:slide={{ duration: 200, easing: quintOut }} class="text-xs text-foreground font-medium truncate shrink min-w-0 inline-block">{crumb.label}</span>
-				{/if}
+				<div in:fly={{ x: -8, duration: 300 }} out:fly={{ x: 8, duration: 200 }} class="inline-flex items-center gap-1">
+					<span class="text-muted-foreground/40 shrink-0">/</span>
+					{#if i < crumbs.length - 1}
+						<a href={crumb.href} class="text-xs text-muted-foreground hover:text-foreground truncate transition-colors shrink min-w-0">{crumb.label}</a>
+					{:else}
+						<span class="text-xs text-foreground font-medium truncate shrink min-w-0">{crumb.label}</span>
+					{/if}
+				</div>
 			{/each}
 		</div>
 		<div class="flex items-center gap-2 shrink-0">
