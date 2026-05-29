@@ -10,6 +10,7 @@ let {
 	workflowPath = '',
 	styleTags = '',
 	negativePrompt = '',
+	directPrompt = '',
 	width = 0,
 	height = 0,
 	turnstileToken = '',
@@ -19,6 +20,7 @@ let {
 	workflowPath?: string;
 	styleTags?: string;
 	negativePrompt?: string;
+	directPrompt?: string;
 	width?: number;
 	height?: number;
 	turnstileToken?: string;
@@ -153,6 +155,7 @@ async function sendMessage() {
 		const response = await chatRequest({
 			message: msg, workflow_path: workflowPath || undefined, style_tags: styleTags || undefined,
 			system_prompt: systemPrompt, negative_prompt: negativePrompt || 'worst quality, low quality, blurry',
+			workflow_prompt: directPrompt || undefined,
 			history: chatHistory, gen_enabled: genEnabled, mode,
 		});
 

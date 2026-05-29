@@ -312,6 +312,7 @@ export interface ChatPayload {
 	style_tags?: string;
 	system_prompt: string;
 	negative_prompt?: string;
+	workflow_prompt?: string;
 	history: Array<{ role: string; content: string }>;
 	gen_enabled?: boolean;
 	mode?: string;
