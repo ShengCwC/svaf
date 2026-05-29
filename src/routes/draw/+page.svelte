@@ -855,10 +855,10 @@ async function startGeneration(mode = 'wai') {
 				<TabsContent value="txt2img" class="space-y-4 mt-4">
 					<Tabs bind:value={genTxtSubTab} class="w-full">
 						<TabsList class="w-full">
-							<TabsTrigger value="wai" class="flex-1 text-xs" onclick={() => genTxtSubTab = 'wai'}>WAI
+							<TabsTrigger value="wai" class="flex-1 text-xs" onclick={() => { genTxtSubTab = 'wai'; workflowPath = ''; }}>WAI
 								<button onclick={(e) => { e.stopPropagation(); waiHelpOpen = true; }} class="inline-flex items-center justify-center size-4 rounded-full border border-muted-foreground/40 text-muted-foreground text-[10px] font-bold ml-1 hover:border-primary hover:text-primary transition-colors" title="关于 WAI">?</button>
 							</TabsTrigger>
-							<TabsTrigger value="anima" class="flex-1 text-xs" onclick={() => genTxtSubTab = 'anima'}>Anima
+							<TabsTrigger value="anima" class="flex-1 text-xs" onclick={() => { genTxtSubTab = 'anima'; workflowPath = ''; }}>Anima
 								<button onclick={(e) => { e.stopPropagation(); animaHelpOpen = true; }} class="inline-flex items-center justify-center size-4 rounded-full border border-muted-foreground/40 text-muted-foreground text-[10px] font-bold ml-1 hover:border-primary hover:text-primary transition-colors" title="关于 Anima">?</button>
 							</TabsTrigger>
 						</TabsList>
