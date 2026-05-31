@@ -948,7 +948,7 @@ async function startGeneration(mode = 'wai') {
 					<SaloonTab {workflowPath} {styleTags} {negativePrompt} {directPrompt} {width} {height} {turnstileToken} pointsCostSubmit={selectedMode === 'anima' ? (pointsConfig?.text_to_image_anima ?? 20) : (pointsConfig?.text_to_image ?? 0)} mode={selectedMode} />
 				</TabsContent>
 				<TabsContent value="tts" class="mt-4">
-					<TtsTab ttsPerChar={pointsConfig?.tts_per_char ?? 0.01} ttsPerSec={pointsConfig?.tts_per_sec ?? 0.033} />
+					<TtsTab ttsPerChar={pointsConfig?.tts_per_char ?? 0.01} ttsPerSec={pointsConfig?.tts_per_sec ?? 0.033} ttsMin={pointsConfig?.tts_generate ?? 1} />
 				</TabsContent>
 
 			</Tabs>

@@ -7,13 +7,13 @@ import { forumAuth } from '$lib/forum/stores/auth';
 import { generateTts, fetchTtsStatus, getTtsResultUrl } from '$lib/draw/api/client';
 import { Badge } from '$lib/components/ui/badge';
 
-let { ttsPerChar = 0.01, ttsPerSec = 0.033 }: { ttsPerChar?: number; ttsPerSec?: number } = $props();
+let { ttsPerChar = 0.01, ttsPerSec = 0.033, ttsMin = 1 }: { ttsPerChar?: number; ttsPerSec?: number; ttsMin?: number } = $props();
 
 let audioFile = $state<File | null>(null);
 let audioUrl = $state('');
 let audioDuration = $state(0);
 
-let estimatedCost = $derived(Math.max(1, Math.ceil(targetText.length * ttsPerChar) + Math.ceil(audioDuration * ttsPerSec)));
+let estimatedCost = $derived(Math.max(ttsMin, Math.ceil(targetText.length * ttsPerChar) + Math.ceil(audioDuration * ttsPerSec)));
 let costLabel = $derived(estimatedCost > 0 ? `⚡${estimatedCost}~` : '');
 let refText = $state('');
 let targetText = $state('');

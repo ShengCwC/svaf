@@ -255,7 +255,7 @@ export async function resolveRecommendations(recIds: string[], action: 'approve'
 		});
 	}
 
-	export async function savePointsConfig(cfg: { text_to_image: number; image_to_image: number; llm_translate: number; signup_bonus?: number; text_to_image_anima?: number }) {
+	export async function savePointsConfig(cfg: { text_to_image: number; image_to_image: number; llm_translate: number; signup_bonus?: number; text_to_image_anima?: number; tts_generate?: number; tts_per_char?: number; tts_per_sec?: number }) {
 		return drawRequest<{ ok: boolean; config: any }>('/api/draw/admin/points-config', {
 			method: 'POST',
 			json: cfg
