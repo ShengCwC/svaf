@@ -412,3 +412,35 @@ export async function clearChatHistory() {
 		requiresAuth: true,
 	});
 }
+
+export async function clearMyImages() {
+	return drawRequest<{ ok: boolean; deleted: number }>('/api/draw/my-images/all', {
+		method: 'DELETE',
+		requiresAuth: true,
+	});
+}
+
+// --- TTS ---
+
+export async function generateTts(formData: FormData) {
+	return drawRequest<{ queued: boolean; item_id: number; position: number }>('/api/draw/tts/generate', {
+		method: 'POST',
+		body: formData,
+		requiresAuth: true,
+	});
+}
+
+export async function fetchTtsStatus(id: number) {
+	return drawRequest<{ id: number; status: string; created_at: number; started_at?: number; finished_at?: number; error?: string; position?: number | null }>(
+		`/api/draw/tts/status/${id}`,
+		{ requiresAuth: true }
+	);
+}
+
+export function getTtsResultUrl(id: number): string {
+	const token = forumAuth.getToken();
+	const baseUrl = get(drawEnv.baseUrl);
+	const url = new URL(`/api/draw/tts/result/${id}`, baseUrl);
+	if (token) url.searchParams.set('token', token);
+	return url.toString();
+}

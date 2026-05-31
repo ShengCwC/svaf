@@ -10,6 +10,7 @@
 	import { drawEnv, apiError, apiStatus, resolveApiRedirect } from '$lib/draw/stores/env';
 	import { connectStatusWs } from '$lib/draw/api/ws';
 	import { fetchMyImages, getImageUrl, getImageProxyUrl, forkOutputImage, recommendImage, deleteMyImage, fetchMyRecommendations, addToQueue, fetchMyQueue, fetchWalletBalance, createWalletOrder, fetchPlans, fetchPointsConfig, fetchWorkflowDetail, fetchAnnouncement, fetchStyles } from '$lib/draw/api/client';
+import { clearMyImages } from '$lib/draw/api/client';
 	import { consumeFork } from '$lib/draw/stores/fork';
 	import { onMount, onDestroy } from 'svelte';
 	import type { WsStatusEvent, DrawWorkflow, DrawRecommendation } from '$lib/draw/types';
@@ -26,6 +27,7 @@
 	import FeaturedTab from '$lib/components/draw/FeaturedTab.svelte';
 	import Img2imgTab from '$lib/components/draw/Img2imgTab.svelte';
 	import SaloonTab from '$lib/components/draw/SaloonTab.svelte';
+	import TtsTab from '$lib/components/draw/TtsTab.svelte';
 		import ImageLightbox from '$lib/components/draw/ImageLightbox.svelte';
 
 	// State
@@ -200,7 +202,7 @@
 
 	// Tab state
 	let activeTab = $state(location.hash?.slice(1) || 'generate');
-	let genSubTab = $state(location.hash?.includes('img2img') ? 'img2img' : location.hash?.includes('saloon') ? 'saloon' : 'txt2img');
+	let genSubTab = $state(location.hash?.includes('img2img') ? 'img2img' : location.hash?.includes('saloon') ? 'saloon' : location.hash?.includes('tts') ? 'tts' : 'txt2img');
 	let genTxtSubTab = $state((typeof localStorage !== 'undefined' && localStorage.getItem('draw-txt-sub-tab')) || 'wai');
 	let selectedMode = $state((typeof localStorage !== 'undefined' && localStorage.getItem('draw-txt-sub-tab')) || 'wai');
 
@@ -213,7 +215,7 @@
 		if (typeof location !== 'undefined') {
 			const h = location.hash?.slice(1);
 			if (h === 'mine' || h === 'featured' || h === 'generate') activeTab = h;
-			if (h === 'img2img' || h === 'txt2img' || h === 'saloon') genSubTab = h;
+			if (h === 'img2img' || h === 'txt2img' || h === 'saloon' || h === 'tts') genSubTab = h;
 		}
 	});
 
@@ -696,6 +698,23 @@ async function startGeneration(mode = 'wai') {
 	}
 
 
+	let clearingAll = $state(false);
+
+	async function handleClearAll() {
+		if (!confirm('确定清空全部图片？此操作不可撤销。')) return;
+		clearingAll = true;
+		try {
+			const res = await clearMyImages();
+			alert(`已清空 ${res.deleted} 张图片`);
+			myImagesLoaded = false;
+			loadMyImages();
+		} catch (e) {
+			alert(e instanceof Error ? e.message : '清空失败');
+		} finally {
+			clearingAll = false;
+		}
+	}
+
 	async function handleBatchRecommend() {
 		if (selectedPaths.size === 0) return;
 		if (!confirm(`确定自荐选中的 ${selectedPaths.size} 张图片？`)) return;
@@ -855,6 +874,10 @@ async function startGeneration(mode = 'wai') {
 						酒馆
 						<button onclick={(e) => { e.stopPropagation(); saloonHelpOpen = true; }} class="inline-flex items-center justify-center size-4 rounded-full border border-muted-foreground/40 text-muted-foreground text-[10px] font-bold ml-1 hover:border-primary hover:text-primary transition-colors" title="关于酒馆">?</button>
 					</TabsTrigger>
+					<TabsTrigger value="tts" class="flex-1">
+						<Icon icon="mdi:voice" class="size-4 mr-1" />
+						TTS
+					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="txt2img" class="space-y-4 mt-4">
@@ -924,6 +947,9 @@ async function startGeneration(mode = 'wai') {
 				<TabsContent value="saloon" class="mt-4">
 					<SaloonTab {workflowPath} {styleTags} {negativePrompt} {directPrompt} {width} {height} {turnstileToken} pointsCostSubmit={selectedMode === 'anima' ? (pointsConfig?.text_to_image_anima ?? 20) : (pointsConfig?.text_to_image ?? 0)} mode={selectedMode} />
 				</TabsContent>
+				<TabsContent value="tts" class="mt-4">
+					<TtsTab />
+				</TabsContent>
 
 			</Tabs>
 		</TabsContent>
@@ -992,6 +1018,9 @@ async function startGeneration(mode = 'wai') {
 								</Button>
 							<Button variant="outline" size="sm" onclick={() => { if (!myRecsLoaded) loadMyRecommendations(); myRecsOpen = true; }}>
 								<Icon icon="mdi:history" class="size-3.5 mr-1" />自荐记录
+							</Button>
+							<Button variant="destructive" size="sm" onclick={handleClearAll} disabled={clearingAll}>
+								<Icon icon="mdi:delete-sweep-outline" class="size-3.5 mr-1" />{clearingAll ? '清空中...' : '清空全部'}
 							</Button>
 								{#if selectedPaths.size > 0}
 									<Button variant="outline" size="sm" onclick={handleBatchRecommend} disabled={queuing}>
