@@ -16,12 +16,14 @@
     pointsCostSubmit = 0,
     llmTokenPerPoint = 0,
     turnstileEnabled = true,
+    workflowPath = 'ZImage/RedAIO.json',
   }: {
     turnstileToken?: string;
     turnstileTick?: number;
     pointsCostSubmit?: number;
     llmTokenPerPoint?: number;
     turnstileEnabled?: boolean;
+    workflowPath?: string;
   } = $props();
 
   const STORAGE_KEY = 'draw-real';
@@ -102,7 +104,7 @@
     try {
       await addToQueue({
         direct_prompt: enPrompt.trim(),
-        workflow_path: 'ZImage/RedAIO.json',
+        workflow_path: workflowPath,
         turnstile_token: turnstileToken || undefined,
       });
       turnstileTick++;

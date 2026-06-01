@@ -947,15 +947,12 @@ async function startGeneration(mode = 'wai') {
           />
             </TabsContent>
             <TabsContent value="ernie" class="space-y-4 mt-4">
-              <PromptForm
-                bind:turnstileToken bind:turnstileTick bind:directPrompt bind:negativePrompt bind:nlPrompt
-                bind:workflowPrompt bind:workflowNegativePrompt bind:width bind:height
-                onsubmit={() => startGeneration('ernie')} disabled={queuing || !isLoggedIn} busy={queuing}
-                bind:sameSeed bind:forkSeed
+              <RealTab
+                bind:turnstileToken bind:turnstileTick
                 llmTokenPerPoint={pointsConfig?.llm_token_per_point}
                 pointsCostSubmit={pointsConfig?.text_to_image_anima}
-                llmMode="anima"
                 turnstileEnabled={pointsConfig?.turnstile_enabled}
+                workflowPath="Ernie/Ernie.json"
               />
             </TabsContent>
             <TabsContent value="real" class="space-y-4 mt-4">
