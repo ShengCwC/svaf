@@ -1819,8 +1819,6 @@ function formatTime(ts: number) {
           </CardContent>
         </Card>
       </TabsContent>
-
-    </Tabs>
   {/if}
 </div>
 
