@@ -856,7 +856,7 @@ async function startGeneration(mode = 'wai') {
       </Alert>
     {/if}
   <Tabs bind:value={activeTab} class="w-full">
-    <TabsList class="w-full flex-wrap h-auto">
+    <TabsList class="w-full">
       <TabsTrigger value="generate" class="flex-1">
         <Icon icon="mdi:sparkles" class="size-4 mr-1" />
         生成
@@ -874,7 +874,7 @@ async function startGeneration(mode = 'wai') {
     <!-- Generate Tab -->
     <TabsContent value="generate" class="mt-4">
       <Tabs bind:value={genSubTab} class="w-full">
-        <TabsList class="w-full flex-wrap h-auto">
+        <TabsList class="w-full flex-wrap h-auto content-start">
           <TabsTrigger value="txt2img" class="flex-1">
             <Icon icon="mdi:sparkles" class="size-4 mr-1" />
             文生
@@ -898,7 +898,7 @@ async function startGeneration(mode = 'wai') {
 
         <TabsContent value="txt2img" class="space-y-4 mt-4">
           <Tabs bind:value={genTxtSubTab} class="w-full">
-            <TabsList class="w-full flex-wrap h-auto">
+            <TabsList class="w-full flex-wrap h-auto content-start">
               <TabsTrigger value="wai" class="flex-1 text-xs" onclick={() => { genTxtSubTab = 'wai'; workflowPath = ''; }}>WAI
                 <button onclick={(e) => { e.stopPropagation(); waiHelpOpen = true; }} class="inline-flex items-center justify-center size-4 rounded-full border border-muted-foreground/40 text-muted-foreground text-[10px] font-bold ml-1 hover:border-primary hover:text-primary transition-colors" title="关于 WAI">?</button>
               </TabsTrigger>
@@ -1208,6 +1208,8 @@ async function startGeneration(mode = 'wai') {
 	/* 全局 flex 防溢出 */
 	.flex-1 { min-width: 0; }
 	.flex-wrap { overflow-wrap: break-word; }
+
+.tabs-list-wrap [data-slot="tabs-trigger"] { height: auto !important; flex: none !important; }
 </style>
 
 <Dialog.Root open={myRecsOpen} onOpenChange={(o) => myRecsOpen = o}>
