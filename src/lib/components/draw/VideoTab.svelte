@@ -61,7 +61,7 @@
 
       const payload: any = {
         image1_name: uploadData.image1_name,
-        workflow_path: 'LTX/LivewallpaperLTX_.json',
+        workflow_path: 'WAN2.2/WAN2.2动态壁纸.json',
         turnstile_token: '',
       };
 
@@ -100,7 +100,7 @@
 </script>
 
 <div class="bg-zinc-900/50 rounded-lg p-3 text-xs text-zinc-400 border border-zinc-800 space-y-1">
-  <p>⚡ 测试功能，生成时间最低400s，请耐心等待</p>
+  <p>⚡ 测试功能，生成时间≈200s，请耐心等待</p>
   <p>上传一张图片，AI 将生成动态壁纸视频（mp4）</p>
 </div>
 
