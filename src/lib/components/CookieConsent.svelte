@@ -224,7 +224,7 @@
             </p>
             <ul class="text-sm text-muted-foreground space-y-1 list-disc list-inside">
               <li>Umami Analytics - 网站统计</li>
-              <li>Cloudflare Insights - 性能监控</li>
+              <li>CDN 性能监控</li>
             </ul>
           </div>
         </div>
@@ -379,8 +379,8 @@
               <p><strong>必要（始终加载）：</strong></p>
               <ul class="list-disc list-inside space-y-0.5 text-muted-foreground">
                 <li>Umami Analytics（自托管）— 收集匿名访问数据，用于统计页面浏览量</li>
-                <li>Cloudflare Web Analytics — 匿名访问统计，无 Cookie、无指纹追踪</li>
-                <li>Cloudflare Turnstile — 人机验证，用于登录、注册、发帖等操作</li>
+                <li>Web Analytics — 匿名访问统计，无 Cookie、无指纹追踪</li>
+                <li>人机验证 — 用于登录、注册、发帖等操作（如 Turnstile）</li>
               </ul>
               <p><strong>功能（需同意）：</strong></p>
               <ul class="list-disc list-inside space-y-0.5 text-muted-foreground">
@@ -405,12 +405,11 @@
               <p>本站集成以下第三方服务，它们可能独立收集你的数据：</p>
               <ul class="list-disc list-inside space-y-0.5">
                 <li>Umami（自托管）— 服务器位于本站运营者控制的服务器上</li>
-              <li>Cloudflare — CDN 及安全服务（美国），受 <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" class="text-primary underline">Cloudflare 隐私政策</a>约束</li>
               <li>GitHub（Giscus）— 评论系统（美国），受 <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" class="text-primary underline">GitHub 隐私政策</a>约束</li>
               <li>Google Analytics（美国）— 用户行为分析（需用户同意后激活）</li>
               <li>Microsoft Clarity（美国）— 用户体验分析（需用户同意后激活）</li>
               </ul>
-              <p>此外，页面可能按需加载来自 jsdelivr、cdnjs 及 api.iconify.design 等 CDN 的资源，这些请求可能暴露你的 IP 地址给第三方 CDN 服务商。</p>
+              <p>我们使用全球融合 CDN 加速您的访问体验，包括但不限于 Cloudflare、Vercel 等。这些 CDN 可能不会同时使用，但我们可能会在不同时期使用不同的 CDN 以保证您最佳的访问体验。您知悉不同的 CDN 厂商的隐私政策不同，详细可前往他们的官网查看详细信息。此外，页面可能按需加载来自 jsdelivr、cdnjs 及 api.iconify.design 等公共 CDN 的资源，这些请求可能暴露你的 IP 地址给第三方服务商。</p>
             </section>
 
             <section>
