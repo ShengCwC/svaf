@@ -9,6 +9,18 @@ export const DRAW_API_CUSTOM_BASE_URL_STORAGE_KEY = 'draw-api-custom-base-url';
 /** 全局 API 错误状态：当 drawRequest 彻底失败时设置 */
 export const apiError = writable<string | null>(null);
 
+/** 重定向检测日志（可在页面上展示） */
+export const redirectLogs = writable<string[]>([]);
+let _logIdx = 0;
+export function addRedirectLog(msg: string) {
+  redirectLogs.update(arr => {
+    const newLog = `[${++_logIdx}] ${msg}`;
+    arr = [...arr, newLog];
+    if (arr.length > 20) arr = arr.slice(-20);
+    return arr;
+  });
+}
+
 export type ApiStatus = 'checking' | 'online' | 'offline';
 export const apiStatus = writable<ApiStatus>('checking');
 
@@ -133,24 +145,24 @@ export async function resolveApiRedirect(force = false): Promise<void> {
   if (!force && now - _redirectFailAt < REDIRECT_COOLDOWN) return;
   apiStatus.set('checking');
   const baseUrl = get(drawEnv.baseUrl);
-  console.log(`[resolveApiRedirect] probing ${baseUrl}/health`);
+  addRedirectLog(`probing ${baseUrl}/health`);
   try {
     const resp = await fetch(`${baseUrl}/health?_t=${Date.now()}`, { method: 'GET' });
-    console.log(`[resolveApiRedirect] response status=${resp.status} url=${resp.url}`);
-    if (!resp.ok) { console.log(`[resolveApiRedirect] not ok`); throw new Error('health check failed'); }
+    addRedirectLog(`response status=${resp.status} url=${resp.url}`);
+    if (!resp.ok) { addRedirectLog(`not ok`); throw new Error('health check failed'); }
     const finalUrl = resp.url.replace(/\/+$/, '').replace(/\/health$/, '');
-    console.log(`[resolveApiRedirect] baseUrl=${baseUrl} finalUrl=${finalUrl}`);
+    addRedirectLog(`baseUrl=${baseUrl} finalUrl=${finalUrl}`);
     if (finalUrl !== baseUrl && finalUrl.startsWith('http')) {
-      console.log(`[resolveApiRedirect] redirect detected, updating base url to ${finalUrl}`);
+      addRedirectLog(`redirect detected, updating to ${finalUrl}`);
       drawEnv.customBaseUrl.set(finalUrl);
     } else {
-      console.log(`[resolveApiRedirect] no redirect, using ${baseUrl}`);
+      addRedirectLog(`no redirect, using ${baseUrl}`);
     }
     _redirectResolved = true;
     apiStatus.set('online');
     apiError.set(null);
   } catch {
-    console.log(`[resolveApiRedirect] failed`);
+    addRedirectLog(`failed`);
     _redirectFailAt = Date.now();
     apiStatus.set('offline');
   }

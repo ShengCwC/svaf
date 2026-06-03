@@ -3,7 +3,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import Icon from '@iconify/svelte';
-  import { DRAW_API_BASE_URLS, drawEnv } from '$lib/draw/stores/env';
+  import { DRAW_API_BASE_URLS, drawEnv, redirectLogs } from '$lib/draw/stores/env';
 
   const initialEnv = get(drawEnv);
   let currentEnv = $state(initialEnv);
@@ -73,6 +73,13 @@
         <Button variant="ghost" size="sm" onclick={resetBaseUrl}>重置</Button>
       </div>
     </div>
+    {#if $redirectLogs.length > 0}
+      <div class="mt-2 space-y-0.5 text-[10px] font-mono text-muted-foreground bg-muted/50 rounded p-2 max-h-24 overflow-y-auto">
+        {#each $redirectLogs as log}
+          <div>{log}</div>
+        {/each}
+      </div>
+    {/if}
   </div>
 </details>
 
