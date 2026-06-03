@@ -110,14 +110,22 @@
       <Icon icon="mdi:close" class="size-8" />
     </button>
 
-    <!-- Image -->
+    <!-- Image / Video -->
     <div class="relative flex items-center justify-center w-full h-full px-16 py-12">
-      <img
-        src={images[index].cached || images[index].src}
-        alt=""
-        class="max-w-full max-h-full object-contain"
-        oncontextmenu={(e) => e.stopPropagation()}
-      />
+      {#if (images[index].cached || images[index].src).match(/\.(mp4|webm)(\?|$)/)}
+        <video
+          src={images[index].cached || images[index].src}
+          controls autoplay loop
+          class="max-w-full max-h-full"
+        />
+      {:else}
+        <img
+          src={images[index].cached || images[index].src}
+          alt=""
+          class="max-w-full max-h-full object-contain"
+          oncontextmenu={(e) => e.stopPropagation()}
+        />
+      {/if}
     </div>
 
     <!-- Prev -->
