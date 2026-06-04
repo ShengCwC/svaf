@@ -59,7 +59,6 @@ let chatMessages = $state<ChatMessage[]>([]);
 let ttsEnabled = $state(typeof localStorage !== 'undefined' ? localStorage.getItem('saloon-tts') === 'true' : false);
 let ttsLoading = $state(false);
 let ttsAudioUrl = $state('');
-$effect(() => { if (ttsAudioUrl) { try { document.getElementById('saloon-tts-player')?.click(); } catch {} } });
 $effect(() => { try { localStorage.setItem('saloon-tts', String(ttsEnabled)); } catch {} });
 
 async function speakMessage(text: string) {
@@ -531,6 +530,10 @@ $effect(() => {
         <Icon icon="mdi:autorenew" class="size-4" />
         <span class="hidden sm:inline">主动</span>
       </button>
+      <button class="flex items-center gap-1 px-2 text-xs transition-colors {ttsEnabled ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}" onclick={() => { ttsEnabled = !ttsEnabled; }} title={ttsEnabled ? '朗读已开启' : '朗读已关闭'}>
+        <Icon icon={ttsLoading ? 'mdi:loading' : 'mdi:volume-high'} class="size-4 {ttsLoading ? 'animate-spin' : ''}" />
+        <span class="hidden sm:inline">{ttsLoading ? '朗读中' : ttsEnabled ? '朗读' : '静音'}</span>
+      </button>
     </div>
     <input type="text" class="flex-1 h-9 text-sm border rounded px-3 bg-background" placeholder={genEnabled ? '输入消息，AI 会边聊边生图...' : '输入消息...'} bind:value={inputText} onkeydown={handleKeydown} disabled={sending} />
     <Button variant="default" size="sm" class="h-9 px-4" onclick={sendMessage} disabled={sending || !inputText.trim()}>
@@ -556,8 +559,4 @@ $effect(() => {
       <span class="font-medium text-foreground">共 {totalLlmCost + totalGenCost} 点</span>
     </div>
   {/if}
-</div>      </button>
-      <button class="flex items-center gap-1 px-2 text-xs transition-colors {ttsEnabled ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}" onclick={() => { ttsEnabled = !ttsEnabled; }} title={ttsEnabled ? '朗读已开启，AI回复后自动语音朗读' : '朗读已关闭'}>
-        <Icon icon={ttsLoading ? 'mdi:loading' : 'mdi:volume-high'} class="size-4 {ttsLoading ? 'animate-spin' : ''}" />
-        <span class="hidden sm:inline">{ttsLoading ? '朗读中' : ttsEnabled ? '朗读' : '静音'}</span>
-      </button>
+</div>
