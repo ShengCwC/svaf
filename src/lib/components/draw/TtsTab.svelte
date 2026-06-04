@@ -270,7 +270,7 @@ onMount(async () => {
 
   <!-- Submit -->
   <Button onclick={handleSubmit}
-    disabled={submitting || !targetText || done} class="w-full">
+    disabled={submitting || !ttsTargetText || done} class="w-full">
     <Icon icon="mdi:send" class="size-4 mr-1" />
     {submitting ? '合成中...' : done ? '已完成' : '开始生成'}
     {#if estimatedCost > 0}
