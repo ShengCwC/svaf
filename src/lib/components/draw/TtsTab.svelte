@@ -4,7 +4,7 @@ import { Button } from '$lib/components/ui/button';
 import { Label } from '$lib/components/ui/label';
 import { Alert, AlertDescription } from '$lib/components/ui/alert';
 import { forumAuth } from '$lib/forum/stores/auth';
-import { addToQueue, fetchMyQueue, getImageUrl, fetchTtsSpeakers, uploadTtsRefAudio } from '$lib/draw/api/client';
+import { addToQueue, fetchMyQueue, getImageUrl, uploadTtsRefAudio } from '$lib/draw/api/client';
 import { Badge } from '$lib/components/ui/badge';
 import { onMount } from 'svelte';
 import TurnstileWidget from '$lib/components/TurnstileWidget.svelte';
@@ -73,10 +73,7 @@ function handleFileSelect(e: Event) {
 
 async function handleSubmit() {
   if (submitting || !targetText) return;
-  if (targetText.length > 100) {
-    error = '文字不能超过 100 字（当前 ' + targetText.length + ' 字）';
-    return;
-  }
+
   error = '';
   submitting = true;
   try {
@@ -148,12 +145,21 @@ function handleReset() {
   error = '';
 }
 
+const PRESET_VOICES = [
+  { id: 'mimo_default', description: 'MiMo-默认' },
+  { id: '冰糖', description: '冰糖（女）' },
+  { id: '茉莉', description: '茉莉（女）' },
+  { id: '苏打', description: '苏打（男）' },
+  { id: '白桦', description: '白桦（男）' },
+  { id: 'Mia', description: 'Mia (English Female)' },
+  { id: 'Chloe', description: 'Chloe (English Female)' },
+  { id: 'Milo', description: 'Milo (English Male)' },
+  { id: 'Dean', description: 'Dean (English Male)' },
+];
+
 onMount(async () => {
-  try {
-    const sp = await fetchTtsSpeakers();
-    speakers = sp.speakers;
-    if (speakers.length > 0) selectedSpeaker = speakers[0].id;
-  } catch {}
+  speakers = PRESET_VOICES;
+  if (speakers.length > 0) selectedSpeaker = speakers[0].id;
 });
 
 function statusLabel(s: string): string {
@@ -193,7 +199,7 @@ function statusLabel(s: string): string {
     </div>
     <div class="space-y-1.5">
       <Label for="tts-instruct">风格指令 <span class="text-muted-foreground text-[10px]">(可选)</span></Label>
-      <input id="tts-instruct" bind:value={instruct} placeholder="如：用特别愤怒的语气说、Very happy、悲伤地"
+      <input id="tts-instruct" bind:value={instruct} placeholder="如：用特别愤怒的语气说、Very happy、悲伤地。支持(开心)[语速加快]等标签"
         class="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs placeholder:text-muted-foreground" />
     </div>
   {:else if mode === 'custom'}
