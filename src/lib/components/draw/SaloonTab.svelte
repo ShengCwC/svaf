@@ -80,6 +80,8 @@ async function speakMessage(text: string, msgIdx?: number) {
       const url = getImageUrl(res.filename);
       if (msgIdx !== undefined) {
         chatMessages = chatMessages.map((m, i) => i === msgIdx ? { ...m, ttsUrl: url } : m);
+        // 保存到 localStorage 供'我的'页面展示
+        try { const list = JSON.parse(localStorage.getItem('saloon-files') || '[]'); list.unshift({ type: 'tts', url, text: text.slice(0, 50), ts: Date.now() }); if (list.length > 50) list.length = 50; localStorage.setItem('saloon-files', JSON.stringify(list)); } catch {}
       }
     }
   } catch {}
@@ -307,6 +309,8 @@ function startQueuePolling() {
           if (chatMessages[msgIdx]) {
             chatMessages[msgIdx].imageUrls = [...(chatMessages[msgIdx].imageUrls || []), imageUrl];
             chatMessages[msgIdx].pendingImages = (chatMessages[msgIdx].pendingImages || []).filter(p => p.itemId !== item.id);
+            // 保存到 localStorage
+            try { const list = JSON.parse(localStorage.getItem('saloon-files') || '[]'); list.unshift({ type: 'image', url: imageUrl, text: (chatMessages[msgIdx]?.content || '').slice(0, 50), ts: Date.now() }); if (list.length > 50) list.length = 50; localStorage.setItem('saloon-files', JSON.stringify(list)); } catch {}
           }
           // 更新 chatHistory，所有图片完成后保存一次
           const updatedMsg = chatMessages[msgIdx];
