@@ -1191,27 +1191,7 @@ async function startGeneration(mode = 'wai') {
             {/if}
 
 
-            <!-- 酒馆生成 -->
-            {#if saloonFiles.length > 0}
-            <div class="pt-4 border-t mt-4">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium flex items-center gap-1.5"><Icon icon="mdi:auto-fix" class="size-4" />酒馆生成</h3>
-                <button onclick={() => { try { localStorage.removeItem('saloon-files'); saloonFiles = []; } catch {} }} class="text-xs text-muted-foreground underline">清空</button>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                {#each saloonFiles as file, i}
-                  <div class="relative group border rounded-lg overflow-hidden {file.type === 'image' ? 'w-28 h-28' : 'w-full max-w-[260px]'} bg-muted">
-                    {#if file.type === 'image'}
-                      <img src={file.url} alt="" class="w-full h-full object-cover" loading="lazy" />
-                    {:else}
-                      <audio src={file.url} controls class="w-full h-9" preload="none"></audio>
-                    {/if}
-                    <div class="text-[10px] text-muted-foreground truncate px-1 pb-1">{file.text}</div>
-                  </div>
-                {/each}
-              </div>
-            </div>
-            {/if}{/if}
+            
           </div>
         {/each}
       {/if}
