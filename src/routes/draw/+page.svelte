@@ -136,6 +136,24 @@ $effect(() => {
   try { saloonFiles = JSON.parse(localStorage.getItem('saloon-files') || '[]'); } catch { saloonFiles = []; }
 });
   let ttsMyRecordsLoaded = $state(false);
+let saloonImages = $state<{ path: string; mtime: number }[]>([]);
+let saloonImagesLoading = $state(false);
+
+async function loadSaloonImages() {
+  saloonImagesLoading = true;
+  try {
+    const baseUrl = get(drawEnv.baseUrl);
+    const token = forumAuth.getToken();
+    const resp = await fetch(baseUrl + '/api/draw/my-images?source=saloon&_t=' + Date.now(), {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      saloonImages = data.items || [];
+    }
+  } catch {}
+  saloonImagesLoading = false;
+}
 
   async function loadTtsMyRecords() {
     ttsMyRecordsLoading = true;
@@ -1189,6 +1207,33 @@ async function startGeneration(mode = 'wai') {
                 </div>
               {/if}
             {/if}
+
+            <!-- 酒馆生成 -->
+            <div class="pt-4 border-t mt-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-medium flex items-center gap-1.5"><Icon icon="mdi:auto-fix" class="size-4" />酒馆生成</h3>
+                <button onclick={loadSaloonImages} class="size-7 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="刷新"><Icon icon="mdi:refresh" class="size-3.5" /></button>
+              </div>
+              {#if saloonImagesLoading}
+                <div class="text-xs text-muted-foreground py-4 text-center">加载中...</div>
+              {:else if saloonImages.length === 0}
+                <div class="text-xs text-muted-foreground py-4 text-center">暂无酒馆生成的内容</div>
+              {:else}
+                <div class="flex flex-wrap gap-2">
+                  {#each saloonImages as img}
+                    <div class="w-28 h-28 rounded-lg overflow-hidden border bg-muted">
+                      {#if img.path.endsWith('.wav') || img.path.endsWith('.flac')}
+                        <div class="flex items-center justify-center h-full p-2">
+                          <audio src={getImageUrl(img.path)} controls class="w-full max-w-full" preload="none"></audio>
+                        </div>
+                      {:else}
+                        <img src={getImageProxyUrl(img.path)} alt="" class="w-full h-full object-cover" loading="lazy" />
+                      {/if}
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
 
 
             

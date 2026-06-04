@@ -73,6 +73,7 @@ async function speakMessage(text: string, msgIdx?: number) {
         speaker: ttsMode === 'preset' ? ttsSpeaker : undefined,
         instruct: ttsInstruct || undefined,
         tags: ttsTags || undefined,
+        source: 'saloon',
       },
       requiresAuth: true,
     });
@@ -175,6 +176,7 @@ async function submitGenJob(tags: string, msgIdx: number) {
       direct_prompt: finalPrompt, width: width || undefined, height: height || undefined,
       style_tags: styleTags || undefined, negative_prompt: negativePrompt || undefined,
       workflow_path: finalWfPath, turnstile_token: turnstileToken || undefined,
+      source: 'saloon',
     });
     // 添加到消息的 pendingImages
     chatMessages = chatMessages.map((m, i) => {
