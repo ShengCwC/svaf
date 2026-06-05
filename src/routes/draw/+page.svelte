@@ -134,6 +134,10 @@ import { fetchOutputMeta } from '$lib/draw/api/client';
   let ttsMyRecordsLoaded = $state(false);
   let saloonImages = $state<{ path: string; mtime: number }[]>([]);
   let saloonImagesLoading = $state(false);
+  let imageCategory = $state<'all' | 'saloon'>('all');
+  let displayImages = $derived(imageCategory === 'all' ? myImages : saloonImages);
+  let displayLoading = $derived(imageCategory === 'all' ? myImagesLoading : saloonImagesLoading);
+  let displayTotal = $derived(imageCategory === 'all' ? myImagesTotal : saloonImages.length);
 
   async function loadSaloonImages() {
     saloonImagesLoading = true;
@@ -204,7 +208,7 @@ let ttsTags = $state('');
   // My images lightbox
   let myLbOpen = $state(false);
   let myLbIndex = $state(0);
-  let myLbImages = $derived(myImages.map((it) => ({ src: getImageUrl(it.path), cached: getImageProxyUrl(it.path), creator_id: '' })));
+  let myLbImages = $derived(displayImages.map((it) => ({ src: getImageUrl(it.path), cached: getImageProxyUrl(it.path), creator_id: '' })));
 
   // Recommendations
   let myRecommendations = $state<DrawRecommendation[]>([]);
@@ -513,10 +517,17 @@ async function startGeneration(mode = 'wai') {
   async function loadMyImages() {
     myImagesLoading = true;
     try {
-      const res = await fetchMyImages();
-      const deduped = res.items.filter((v, i, a) => a.findIndex(t => t.path === v.path) === i);
-      myImages = deduped;
-      myImagesTotal = res.total;
+      const baseUrl = get(drawEnv.baseUrl);
+      const token = forumAuth.getToken();
+      const resp = await fetch(baseUrl + '/api/draw/my-images?source=default&_t=' + Date.now(), {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        const deduped = (data.items || []).filter((v: any, i: number, a: any[]) => a.findIndex((t: any) => t.path === v.path) === i);
+        myImages = deduped;
+        myImagesTotal = data.total || deduped.length;
+      }
       myImagesLoaded = true;
       rebuildMyColumns();
     } catch {
@@ -530,14 +541,14 @@ async function startGeneration(mode = 'wai') {
     columnCount = getColumnCount();
     imgColumns = Array.from({ length: columnCount }, () => []);
     columnHeights = new Array(columnCount).fill(0);
-    const display = myImages.slice(0, myImagesDisplayLimit);
+    const display = displayImages.slice(0, myImagesDisplayLimit);
     for (const item of display) pushToShortest(item.path);
     imgColumns = [...imgColumns];
-    hasMore = myImagesDisplayLimit < myImages.length;
+    hasMore = myImagesDisplayLimit < displayImages.length;
   }
 
   function showMoreMyImages() {
-    myImagesDisplayLimit = Math.min(myImagesDisplayLimit + 10, myImages.length);
+    myImagesDisplayLimit = Math.min(myImagesDisplayLimit + 10, displayImages.length);
     rebuildMyColumns();
   }
 
@@ -1114,7 +1125,13 @@ async function startGeneration(mode = 'wai') {
               {/each}
             </div>
             <div class="flex items-center justify-between gap-2 flex-wrap">
-              <h3 class="text-sm font-medium flex items-center gap-1.5 shrink-0"><Icon icon="mdi:account-outline" class="size-4" />我的图片 <span class="text-xs text-muted-foreground whitespace-nowrap">({myImages.length}/{myImagesTotal})</span></h3>
+              <h3 class="text-sm font-medium flex items-center gap-1.5 shrink-0">
+                <div class="flex items-center gap-0.5 border rounded-lg overflow-hidden text-xs">
+                  <button class="px-2 py-1 transition-colors {imageCategory === 'all' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}" onclick={() => imageCategory = 'all'}>默认</button>
+                  <button class="px-2 py-1 transition-colors {imageCategory === 'saloon' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}" onclick={() => { imageCategory = 'saloon'; loadSaloonImages(); }}>酒馆</button>
+                </div>
+                <span class="text-xs text-muted-foreground whitespace-nowrap">({displayImages.length}/{displayTotal})</span>
+              </h3>
               <div class="flex items-center gap-1 flex-wrap">
                 <button onclick={() => { myImagesLoaded = false; loadMyImages(); }} class="size-7 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="刷新"><Icon icon="mdi:refresh" class="size-3.5" /></button>
                 <Button variant={selectMode ? 'default' : 'outline'} size="sm" onclick={() => { selectMode = !selectMode; if (!selectMode) selectedPaths = new Set(); }}>
@@ -1136,19 +1153,19 @@ async function startGeneration(mode = 'wai') {
                 {/if}
               </div>
             </div>
-            {#if myImagesLoading}
+            {#if displayLoading}
               <div class="text-xs text-muted-foreground py-8 text-center">加载中...</div>
-            {:else if myImages.length === 0}
-              <div class="text-xs text-muted-foreground py-8 text-center">你还没有生成过内容</div>
+            {:else if displayImages.length === 0}
+              <div class="text-xs text-muted-foreground py-8 text-center">{imageCategory === 'all' ? '你还没有生成过内容' : '暂无酒馆生成的内容'}</div>
             {:else}
               <div class="flex gap-1 sm:gap-2 items-start">
                 {#each imgColumns as col, ci (ci)}
                   <div class="flex flex-1 flex-col gap-2 min-w-0">
                     {#each col as path, i (ci + '-' + i + '-' + path)}
-                      {@const item = myImages.find(i => i.path === path)}
+                      {@const item = displayImages.find(i => i.path === path)}
                       {#if item}
                         <div role="button" tabindex="0" class="group relative rounded-md overflow-hidden border hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer {selectedPaths.has(item.path) ? 'ring-2 ring-primary' : ''}"
-                          onclick={() => { if (selectMode) toggleSelect(item.path); else if (item.path.endsWith('.wav') || item.path.endsWith('.flac')) {} else { myLbIndex = myImages.indexOf(item); myLbOpen = true; } }}>
+                          onclick={() => { if (selectMode) toggleSelect(item.path); else if (item.path.endsWith('.wav') || item.path.endsWith('.flac')) {} else { myLbIndex = displayImages.indexOf(item); myLbOpen = true; } }}>
                           {#if item.path.endsWith('.mp4') || item.path.endsWith('.webm')}
                             <video src={getImageProxyUrl(item.path)} loop autoplay muted playsinline class="block w-full h-auto bg-muted" style="aspect-ratio: 1;" />
                           {:else if item.path.endsWith('.wav') || item.path.endsWith('.flac')}
@@ -1197,37 +1214,10 @@ async function startGeneration(mode = 'wai') {
               </div>
               {#if hasMore}
                 <div class="flex justify-center pt-2">
-                  <Button variant="outline" size="sm" onclick={showMoreMyImages}>加载更多（{myImages.length - myImagesDisplayLimit} 张）</Button>
+                  <Button variant="outline" size="sm" onclick={showMoreMyImages}>加载更多（{displayImages.length - myImagesDisplayLimit} 张）</Button>
                 </div>
               {/if}
             {/if}
-
-            <!-- 酒馆生成 -->
-            <div class="pt-4 border-t mt-4">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium flex items-center gap-1.5"><Icon icon="mdi:auto-fix" class="size-4" />酒馆生成</h3>
-                <button onclick={loadSaloonImages} class="size-7 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="刷新"><Icon icon="mdi:refresh" class="size-3.5" /></button>
-              </div>
-              {#if saloonImagesLoading}
-                <div class="text-xs text-muted-foreground py-4 text-center">加载中...</div>
-              {:else if saloonImages.length === 0}
-                <div class="text-xs text-muted-foreground py-4 text-center">暂无酒馆生成的内容</div>
-              {:else}
-                <div class="flex flex-wrap gap-2">
-                  {#each saloonImages as img}
-                    <div class="w-28 h-28 rounded-lg overflow-hidden border bg-muted">
-                      {#if img.path.endsWith('.wav') || img.path.endsWith('.flac')}
-                        <div class="flex items-center justify-center h-full p-2">
-                          <audio src={getImageUrl(img.path)} controls class="w-full max-w-full" preload="none"></audio>
-                        </div>
-                      {:else}
-                        <img src={getImageProxyUrl(img.path)} alt="" class="w-full h-full object-cover" loading="lazy" />
-                      {/if}
-                    </div>
-                  {/each}
-                </div>
-              {/if}
-            </div>
 
           </div>
         {/if}
