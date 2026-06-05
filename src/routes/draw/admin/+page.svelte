@@ -1828,7 +1828,7 @@ function formatTime(ts: number) {
                   {@const audPct = maxSize > 0 ? item.aud_size / maxSize * 100 : 0}
                   <div class="flex items-center gap-2 text-xs border rounded px-3 py-1.5 {i < 3 ? 'bg-primary/5 border-primary/20' : ''}">
                     <span class="w-6 text-center font-mono text-muted-foreground {i < 3 ? 'text-primary' : ''}">#{i + 1}</span>
-                    <span class="font-medium w-12">UID {item.user_id}</span>
+                    <span class="font-medium w-8 text-right">#{item.user_id}</span>
                     <div class="flex-1 space-y-0.5">
                       <div class="h-2 bg-muted rounded-full overflow-hidden flex">
                         <div class="h-full bg-blue-500/70 rounded-l-full transition-all" style="width: {imgPct}%" title="图片 {formatSize(item.img_size)}"></div>
