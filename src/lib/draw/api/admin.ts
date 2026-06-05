@@ -275,5 +275,5 @@ export async function resolveRecommendations(recIds: string[], action: 'approve'
   }
 
   export async function fetchStorage() {
-    return drawRequest<{ items: Array<{ user_id: number; img_files: number; img_size: number; aud_files: number; aud_size: number }>; total_size: number }>('/api/draw/admin/storage');
+    return drawRequest<{ items: Array<{ user_id: number; img_files: number; img_size: number; vid_files: number; vid_size: number; aud_files: number; aud_size: number }>; total_size: number }>('/api/draw/admin/storage');
   }
