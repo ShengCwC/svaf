@@ -94,21 +94,18 @@ function createEnvStore(): DrawEnvStore {
       set: (v) => {
       const url = sanitizeBaseUrl(v, get(envStore));
       writeLocalStorage(DRAW_API_CUSTOM_BASE_URL_STORAGE_KEY, url);
-      _redirectResolved = false;
-      apiStatus.set('checking');
+            apiStatus.set('checking');
       customBaseUrlStore.set(url);
     },
       reset: (env) => {
       writeLocalStorage(DRAW_API_CUSTOM_BASE_URL_STORAGE_KEY, '');
-      _redirectResolved = false;
-      customBaseUrlStore.set(DRAW_API_BASE_URLS[env]);
+            customBaseUrlStore.set(DRAW_API_BASE_URLS[env]);
     }
     },
     set: (v) => {
       const next = normalizeEnv(v);
       writeLocalStorage(DRAW_API_ENV_STORAGE_KEY, next);
-      _redirectResolved = false;
-      envStore.set(next);
+            envStore.set(next);
       customBaseUrlStore.set(DRAW_API_BASE_URLS[next]);
     },
     toggle: () => {
@@ -118,8 +115,7 @@ function createEnvStore(): DrawEnvStore {
         writeLocalStorage(DRAW_API_ENV_STORAGE_KEY, next);
         return next;
       });
-      _redirectResolved = false;
-      customBaseUrlStore.set(DRAW_API_BASE_URLS[next]);
+            customBaseUrlStore.set(DRAW_API_BASE_URLS[next]);
     },
     getBaseUrl: (env) => DRAW_API_BASE_URLS[env]
   };
@@ -127,47 +123,17 @@ function createEnvStore(): DrawEnvStore {
 
 export const drawEnv: DrawEnvStore = createEnvStore();
 
-/**
- * 页面初始化时探测 API 端点（重定向检测），只跑一次，定死。
- * 除非用户手动改了 API 地址强刷页面，否则不再检测。
- */
-let _redirectStarted = false;
-let _redirectResolved = false;
-let _redirectPending: Promise<void> | null = null;
-
-export async function resolveApiRedirect(force = false): Promise<void> {
-  if (_redirectResolved && !force) return;
-  if (_redirectStarted && !force) return; // 双重保险：一旦启动就不再重入
-  if (_redirectPending) return _redirectPending;
-  _redirectStarted = true;
-  _redirectPending = (async () => {
-    redirectLogs.set([]);
-    apiStatus.set('checking');
-    const baseUrl = get(drawEnv.baseUrl);
-    const t0 = Date.now();
-    addRedirectLog(`[${(Date.now()-t0)}ms] 开始检测 ${baseUrl}/health`);
-    try {
-      const resp = await fetch(`${baseUrl}/health?_t=${Date.now()}`, { method: 'GET' });
-      const finalUrl = resp.url.replace(/\/health[\?&].*$/, '').replace(/\/health$/, '');
-      addRedirectLog(`[${(Date.now()-t0)}ms] 响应 status=${resp.status} url=${resp.url}`);
-      if (!resp.ok) { addRedirectLog(`[${(Date.now()-t0)}ms] 不 OK`); throw new Error('health check failed'); }
-      if (finalUrl !== baseUrl && finalUrl.startsWith('http')) {
-        addRedirectLog(`[${(Date.now()-t0)}ms] 切换至 ${finalUrl}`);
-        drawEnv.customBaseUrl.set(finalUrl);
-      } else {
-        addRedirectLog(`[${(Date.now()-t0)}ms] 无重定向，使用 ${baseUrl}`);
-      }
-      _redirectResolved = true;
-      apiStatus.set('online');
-      apiError.set(null);
-      addRedirectLog(`[${(Date.now()-t0)}ms] API 在线`);
-    } catch (e: any) {
-      addRedirectLog(`[${(Date.now()-t0)}ms] 失败: ${e.message || ''}`);
-      _redirectResolved = true; // 失败也定死，不再重试
-      apiStatus.set('offline');
-    } finally {
-      _redirectPending = null;
-    }
-  })();
-  return _redirectPending;
+export async function resolveApiRedirect(): Promise<void> {
+  if (_done) return;
+  _done = true;
+  apiStatus.set('checking');
+  const baseUrl = get(drawEnv.baseUrl);
+  try {
+    const resp = await fetch(baseUrl + '/health?_t=' + Date.now(), { method: 'GET' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    apiStatus.set('online');
+    apiError.set(null);
+  } catch {
+    apiStatus.set('offline');
+  }
 }
