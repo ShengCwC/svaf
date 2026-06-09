@@ -7,6 +7,7 @@
   import { forumAuth } from '$lib/forum/stores/auth';
   import { drawEnv, resolveApiRedirect, apiError } from '$lib/draw/stores/env';
   import EnvironmentSwitcher from '$lib/components/draw/EnvironmentSwitcher.svelte';
+  import { forumToast } from '$lib/forum/stores/toast';
   import { get } from 'svelte/store';
 
   let currentBaseUrl = $state('');
@@ -25,6 +26,7 @@
   $effect(() => {
     const unsub = apiError.subscribe((v) => {
       apiErrorMessage = v || '';
+      if (v) forumToast.add('error', 'API 错误', v);
     });
     return unsub;
   });
@@ -33,6 +35,10 @@
     const u1 = drawEnv.baseUrl.subscribe((v) => (currentBaseUrl = v));
     authToken = forumAuth.getToken();
     return u1;
+  });
+
+  $effect(() => {
+    if (error) forumToast.add('error', '错误', error);
   });
 
   function handleFileInput(e: Event) {
@@ -158,13 +164,6 @@
     </Alert>
   {/if}
 
-  {#if apiErrorMessage}
-    <Alert>
-      <Icon icon="mdi:cloud-alert" class="size-4 shrink-0" />
-      <AlertDescription class="text-xs">{apiErrorMessage}</AlertDescription>
-    </Alert>
-  {/if}
-
   <!-- Image Upload -->
   <div class="space-y-2">
     <div class="flex items-center justify-between">
@@ -243,14 +242,6 @@
       开始生成
     {/if}
   </Button>
-
-  <!-- Error -->
-  {#if error}
-    <Alert variant="destructive">
-      <Icon icon="mdi:alert-circle" class="size-4" />
-      <AlertDescription class="text-xs">{error}</AlertDescription>
-    </Alert>
-  {/if}
 
   <!-- Results -->
   {#if resultImages.length > 0}

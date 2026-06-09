@@ -54,8 +54,6 @@ import { fetchOutputMeta } from '$lib/draw/api/client';
   let realHelpOpen = $state(false);
   let dsOutage = $state(false);
   let queuing = $state(false);
-  let queueSuccess = $state("");
-  let queueError = $state("");
   let queueTimer: ReturnType<typeof setInterval> | null = null;
   let globalBusy = $state(false);
   let settingsOpen = $state(false);
@@ -226,12 +224,14 @@ let ttsTags = $state('');
   let apiStatusValue = $state("checking");
     let turnstileToken = $state("");
     let turnstileTick = $state(0);
-    let forkMessage = $state("");
 
   $effect(() => {
     const unsub = apiError.subscribe((v) => {
         if (v) console.log('[FORK] apiError set to:', v);
       apiErrorMessage = v || '';
+      if (v && !v.includes('封禁') && !v.includes('BANNED')) {
+        forumToast.add('error', 'API 错误', v);
+      }
     });
     return unsub;
   });
@@ -448,24 +448,24 @@ let ttsTags = $state('');
         if (commaIdx >= 0) directPrompt = (res.builtin_prompt || '').slice(commaIdx + 1).trim();
       }
       localStorage.setItem('draw-fork-pending', JSON.stringify({ workflow_api: null, builtin_prompt: res.builtin_prompt || '', builtin_negative_prompt: res.builtin_negative_prompt || '', default_width: res.default_width || null, default_height: res.default_height || null, seed: res.seed, style_tags: res.style_tags || '', workflow_path: res.workflow_path || '', workflow_name: res.workflow_name || '' }));
-      forkMessage = 'Fork 成功';
+      forumToast.add('success', 'Fork 成功', '');
       console.log('[FORK] success done');
     } catch (e: any) {
       console.log('[FORK] catch error:', e?.message);
-      forkMessage = e?.message || 'Fork 失败';
+      forumToast.add('error', 'Fork 失败', e?.message || '');
     }
   }
 async function startGeneration(mode = 'wai') {
       if (queuing) return;
       if (!authToken) {
-        alert('请先在论坛登录');
+        forumToast.add('info', '未登录', '请先在论坛登录');
         return;
       }
       if (!workflowPath) {
-        alert('请选择工作流');
+        forumToast.add('error', '未选择工作流', '请选择工作流');
         }
         if (false) {
-          alert('请完成人机验证');
+          forumToast.add('error', '人机验证', '请完成人机验证');
         return;
       }
 
@@ -491,8 +491,6 @@ async function startGeneration(mode = 'wai') {
       }
 
       queuing = true;
-      queueSuccess = '';
-      queueError = '';
       try {
         await addToQueue({
           direct_prompt: finalDirectPrompt,
@@ -759,7 +757,7 @@ async function startGeneration(mode = 'wai') {
       selectMode = false;
       selectedPaths = new Set();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "批量删除失败");
+      forumToast.add('error', '批量删除失败', e instanceof Error ? e.message : '');
     }
   }
 
@@ -771,11 +769,11 @@ async function startGeneration(mode = 'wai') {
     clearingAll = true;
     try {
       const res = await clearMyImages();
-      alert(`已清空 ${res.deleted} 张图片`);
+      forumToast.add('success', '清空成功', `已清空 ${res.deleted} 张图片`);
       myImagesLoaded = false;
       loadMyImages();
     } catch (e) {
-      alert(e instanceof Error ? e.message : '清空失败');
+      forumToast.add('error', '清空失败', e instanceof Error ? e.message : '');
     } finally {
       clearingAll = false;
     }
@@ -786,22 +784,22 @@ async function startGeneration(mode = 'wai') {
     if (!confirm(`确定自荐选中的 ${selectedPaths.size} 张图片？`)) return;
     try {
       await Promise.all(Array.from(selectedPaths).map(p => recommendImage(p)));
-      alert('自荐成功，等待管理员审核');
+      forumToast.add('success', '自荐成功', '等待管理员审核');
       selectMode = false;
       selectedPaths = new Set();
       loadMyRecommendations();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "批量自荐失败");
+      forumToast.add('error', '批量自荐失败', e instanceof Error ? e.message : '');
     }
   }
 
   async function handleRecommend(path: string) {
     try {
       await recommendImage(path);
-      alert('自荐成功，等待管理员审核');
+      forumToast.add('success', '自荐成功', '等待管理员审核');
       loadMyRecommendations();
     } catch (e) {
-      alert(e instanceof Error ? e.message : '自荐失败');
+      forumToast.add('error', '自荐失败', e instanceof Error ? e.message : '');
     }
   }
 
@@ -912,21 +910,7 @@ async function startGeneration(mode = 'wai') {
     </div>
   {/if}
 
-  {#if apiErrorMessage && !apiErrorMessage.includes('封禁') && !apiErrorMessage.includes('BANNED')}
-    <Alert>
-      <Icon icon="mdi:cloud-alert" class="size-4 shrink-0" />
-      <AlertDescription class="text-xs">{@html apiErrorMessage}</AlertDescription>
-    </Alert>
-  {/if}
-
   <!-- Tabs -->
-  {#if forkMessage}
-    <Alert>
-      <Icon icon="mdi:information" class="size-4 shrink-0" />
-      <AlertDescription class="text-xs">{forkMessage}</AlertDescription>
-      <button class="ml-auto text-xs underline" onclick={() => (forkMessage = '')}>关闭</button>
-    </Alert>
-  {/if}
   <Tabs bind:value={activeTab} class="w-full">
     <TabsList class="w-full">
       <TabsTrigger value="generate" class="flex-1">
@@ -1040,18 +1024,6 @@ async function startGeneration(mode = 'wai') {
             </TabsContent>
           </Tabs>
 
-          {#if queueSuccess}
-            <Alert>
-              <Icon icon="mdi:check-circle" class="size-4" />
-              <AlertDescription class="text-xs">{queueSuccess}</AlertDescription>
-            </Alert>
-          {/if}
-        {#if queueError}
-            <Alert variant="destructive">
-              <Icon icon="mdi:alert-circle" class="size-4" />
-              <AlertDescription class="text-xs">{queueError}</AlertDescription>
-            </Alert>
-          {/if}
 
         </TabsContent>
 
