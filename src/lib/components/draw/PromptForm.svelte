@@ -229,7 +229,7 @@ import { drawEnv } from '$lib/draw/stores/env';
       bind:value={nlPrompt}
       use:autoResize
       placeholder="一个蓝发少女站在花园里..."
-      class="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring scrollbar-hide"
+      class="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-y scrollbar-hide"
     ></textarea>
       {#if turnstileEnabled}
         <TurnstileWidget
@@ -286,7 +286,7 @@ import { drawEnv } from '$lib/draw/stores/env';
             bind:value={directPrompt}
             use:autoResize
             placeholder="1girl, blue_hair, garden, masterpiece, best quality..."
-            class="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring scrollbar-hide"
+            class="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-y scrollbar-hide"
           ></textarea>
         </div>
         <div class="space-y-1.5">
@@ -298,7 +298,7 @@ import { drawEnv } from '$lib/draw/stores/env';
             bind:value={negativePrompt}
             use:autoResize
             placeholder="bad hands, too many fingers, long neck, poorly drawn..."
-            class="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring scrollbar-hide"
+            class="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-y scrollbar-hide"
           ></textarea>
         </div>
       </div>
@@ -439,7 +439,7 @@ import { drawEnv } from '$lib/draw/stores/env';
           use:autoResize
           maxlength="2000"
           placeholder="masterpiece, best quality, highly detailed"
-          class="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring scrollbar-hide"
+          class="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-y scrollbar-hide"
         ></textarea>
         <div class="text-right text-[10px] text-muted-foreground">{newPresetContent.length}/2000</div>
       </div>
