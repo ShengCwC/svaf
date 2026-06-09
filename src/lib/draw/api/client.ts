@@ -223,10 +223,8 @@ export async function clearQueue() {
 export async function fetchDebugInfo() {
   return drawRequest<{
     active: { count: number; status: unknown; semaphore_locked: boolean; subscribers: number };
-    queue_stats: Record<string, number>;
-    queue_users: [number, number][];
+    queue_items: Array<{ id: number; user_id: number; status: string; created_ago: number; workflow_path: string }>;
     stuck: Array<{ id: number; user_id: number; status: string }>;
-    recent_items_full: Array<{ id: number; user_id: number; status: string; created_ago: number; started_ago?: number | null; error?: string; type?: string; workflow_path?: string }>;
   }>('/api/draw/debug', { requiresAuth: true });
 }
 

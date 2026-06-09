@@ -1905,15 +1905,23 @@ function formatTime(ts: number) {
           <CardHeader>
             <CardTitle class="text-base flex items-center gap-2">
               <Icon icon="mdi:bug-outline" class="size-5" />
-              生图调试总览
+              队列管理
             </CardTitle>
-            <CardDescription>活跃状态、队列统计、卡住任务</CardDescription>
+            <CardDescription>活跃队列 — 仅用于断电恢复，任务完结自动消失</CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button variant="outline" size="sm" onclick={loadDebug} disabled={debugLoading}>
-              <Icon icon="mdi:refresh" class="size-4 mr-1" />
-              {debugLoading ? '加载中...' : '刷新'}
-            </Button>
+            <div class="flex items-center gap-2">
+              <Button variant="outline" size="sm" onclick={loadDebug} disabled={debugLoading}>
+                <Icon icon="mdi:refresh" class="size-4 mr-1" />
+                {debugLoading ? '加载中...' : '刷新'}
+              </Button>
+              <Button variant="destructive" size="sm" onclick={handleClearQueue} disabled={clearing}>
+                {#if clearing}
+                  <Icon icon="mdi:loading" class="size-4 animate-spin" />
+                {/if}
+                清空队列
+              </Button>
+            </div>
 
             {#if debugError}
               <Alert variant="destructive">
@@ -1923,51 +1931,6 @@ function formatTime(ts: number) {
             {/if}
 
             {#if debugData}
-
-              <div>
-                <h4 class="text-sm font-medium mb-2">队列状态分布</h4>
-                <div class="flex flex-wrap gap-2">
-                  {#each Object.entries(debugData.queue_stats) as [status, count]}
-                    {#if count > 0}
-                      <Badge variant={status === 'failed' ? 'destructive' : status === 'done' ? 'default' : 'secondary'} class="text-xs">
-                        {status}: {count}
-                      </Badge>
-                    {/if}
-                  {/each}
-                </div>
-              </div>
-
-              <div class="flex gap-2">
-                <Button variant="destructive" size="sm" onclick={handleClearQueue} disabled={clearing}>
-                  {#if clearing}
-                    <Icon icon="mdi:loading" class="size-4 animate-spin" />
-                  {/if}
-                  清空队列
-                </Button>
-              </div>
-
-              {#if debugData.meta_stats}
-                <div>
-                  <h4 class="text-sm font-medium mb-2">元数据写入</h4>
-                  <div class="flex flex-wrap gap-2">
-                    <Badge variant="outline" class="text-xs">图片数: {debugData.meta_stats.output_total}</Badge>
-                  </div>
-              </div>
-              {/if}
-
-              {#if debugData.queue_users.length > 0}
-                <div>
-                  <h4 class="text-sm font-medium mb-2">队列中的用户</h4>
-                  <div class="flex flex-wrap gap-2">
-                    {#each debugData.queue_users as [uid, count]}
-                      <Badge variant="secondary" class="text-xs">
-                        UID {uid} x {count}
-                      </Badge>
-                    {/each}
-                  </div>
-              </div>
-              {/if}
-
               {#if debugData.stuck.length > 0}
                 <div>
                   <h4 class="text-sm font-medium mb-2 text-red-500">卡住任务 ({debugData.stuck.length})</h4>
@@ -1985,7 +1948,7 @@ function formatTime(ts: number) {
               {/if}
 
               <div>
-                <h4 class="text-sm font-medium mb-2">最近 20 条队列项</h4>
+                <h4 class="text-sm font-medium mb-2">活跃队列（{debugData.queue_items.length}）</h4>
                 <div class="overflow-x-auto">
                   <table class="w-full text-xs">
                     <thead>
@@ -1993,26 +1956,24 @@ function formatTime(ts: number) {
                         <th class="py-1 pr-2">ID</th>
                         <th class="py-1 pr-2">UID</th>
                         <th class="py-1 pr-2">状态</th>
-                        <th class="py-1 pr-2">创建</th>
-                        <th class="py-1 pr-2">启动</th>
-                        <th class="py-1 pr-2">耗时</th>
-                          <th class="py-1 pr-2">工作流</th>
-                          <th class="py-1 pr-2">错误</th>
+                        <th class="py-1 pr-2">等待</th>
+                        <th class="py-1 pr-2">工作流</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {#each debugData.recent_items_full as item}
+                      {#each debugData.queue_items as item}
                         <tr class="border-b">
                           <td class="py-1 pr-2 font-mono">{item.id}</td>
                           <td class="py-1 pr-2">{item.user_id}</td>
                           <td class="py-1 pr-2">
-                            <Badge variant={item.status === 'failed' ? 'destructive' : item.status === 'done' ? 'default' : item.status === 'running' ? 'default' : 'secondary'} class="text-[10px]">{item.status}</Badge>
+                            {#if item.status === '运行'}
+                              <Badge variant="default" class="text-[10px] animate-pulse">运行</Badge>
+                            {:else}
+                              <Badge variant="secondary" class="text-[10px]">排队</Badge>
+                            {/if}
                           </td>
                           <td class="py-1 pr-2 text-muted-foreground">{item.created_ago}s前</td>
-                          <td class="py-1 pr-2 text-muted-foreground">{item.started_ago != null ? `${item.started_ago}s前` : '-'}</td>
-                          <td class="py-1 pr-2 text-muted-foreground">{item.duration != null ? `${item.duration}s` : '-'}</td>
-                            <td class="py-1 pr-2 break-all max-w-[120px] text-muted-foreground text-[10px]">{item.workflow_path || '-'}</td>
-                            <td class="py-1 pr-2 break-all max-w-xs text-destructive text-[10px]" title={item.error || ''}>{item.error || '-'}</td>
+                          <td class="py-1 pr-2 break-all max-w-[120px] text-muted-foreground text-[10px]">{item.workflow_path || '-'}</td>
                         </tr>
                       {/each}
                     </tbody>
