@@ -57,6 +57,7 @@
       bind:value={customBaseUrl}
       placeholder="API baseURL"
       class="flex-1"
+      disabled={currentEnv === 'prod'}
     />
     <Button size="sm" variant="default" onclick={apply}>应用并刷新</Button>
     <Button size="sm" variant="ghost" onclick={resetUrl}>恢复默认</Button>
