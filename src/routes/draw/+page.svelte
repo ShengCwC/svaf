@@ -857,27 +857,25 @@ async function startGeneration(mode = 'wai') {
     </Dialog.Content>
   </Dialog.Root>
 
-  <!-- API 检测：未在线时只显示日志 -->
-  {#if apiStatusValue !== 'online'}
-    <div class="py-8 space-y-4">
-      <div class="text-center text-sm text-muted-foreground">
-        {#if apiStatusValue === 'checking'}
-          正在检测 API 状态...
-        {:else}
-          {@html '后端不可用，二叉树树目前可能需要使用电脑，未启用生图功能。<br>您可以尝试<a href="https://2x.nz/q" target="_blank" rel="noopener noreferrer" class="underline font-medium">加入官方群聊</a>，群内Bot会在生图上线/下线实时提醒。感谢您的支持！'}
-        {/if}
+  <!-- API 检测：offline 时加警告横幅，不阻断 UI -->
+  {#if apiStatusValue === 'offline'}
+    <div class="rounded-lg border border-amber-600/50 bg-amber-950/20 p-3 mb-4 space-y-1">
+      <div class="text-xs text-amber-500 flex items-center gap-2">
+        <Icon icon="mdi:alert-outline" class="size-3.5 shrink-0" />
+        <span>后端检测异常，功能可能受影响，正在自动重试...</span>
       </div>
       {#if $redirectLogs.length > 0}
-        <div class="rounded-lg border border-red-800 bg-red-950/30 p-4 space-y-1 text-xs font-mono text-red-400 max-h-60 overflow-y-auto">
+        <div class="text-[10px] font-mono text-amber-700/70 max-h-20 overflow-y-auto space-y-0.5">
           {#each $redirectLogs as log}
             <div>{log}</div>
           {/each}
         </div>
       {/if}
     </div>
+  {:else if apiStatusValue === 'checking'}
+    <div class="py-8 text-center text-sm text-muted-foreground">正在检测 API 状态...</div>
   {/if}
 
-  {#if apiStatusValue === 'online'}
   <!-- Auth warning -->
   {#if !isLoggedIn}
     <Alert>

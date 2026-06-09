@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { Badge } from '$lib/components/ui/badge';
   import * as Card from '$lib/components/ui/card';
-  import * as Pagination from '$lib/components/ui/pagination';
   import Icon from '@iconify/svelte';
   import { siteConfig } from '$lib/config/site';
   import { slide } from 'svelte/transition';
@@ -30,12 +28,9 @@
   let pageViews = $state<Record<string, number>>(_initialViews);
   let isLoadingViews = $state(false);
 
-  let currentPage = $state(1);
-  const postsPerPage = 10;
-
   // 每个搜索结果卡片的展开状态（key: post.slug）
   let expandedCards = $state<Record<string, boolean>>({});
-  
+
   let searchFilters = $state({
     title: true,
     description: true,
@@ -47,7 +42,7 @@
     // 移除 HTML 标签
     const plainText = text.replace(/<[^>]*>/g, '');
     // 计算中文字符
-    const chineseChars = plainText.match(/[\u4e00-\u9fa5]/g) || [];
+    const chineseChars = plainText.match(/[一-龥]/g) || [];
     // 计算英文单词
     const englishWords = plainText.match(/[a-zA-Z]+/g) || [];
     return chineseChars.length + englishWords.length;
@@ -60,7 +55,7 @@
 
   async function loadRSS() {
     if (hasLoaded) return;
-    
+
     isLoading = true;
     allPosts = await spaCache.get('posts-rss', async () => {
       const response = await fetch('/rss.xml');
@@ -68,12 +63,12 @@
       const parser = new DOMParser();
       const xml = parser.parseFromString(text, 'text/xml');
       const items = xml.querySelectorAll('item');
-      
+
       return Array.from(items).map(item => {
         const content = item.querySelector('content\\:encoded, encoded')?.textContent || '';
         const wordCount = calculateWordCount(content);
         const readTime = calculateReadTime(wordCount);
-        
+
         return {
           title: item.querySelector('title')?.textContent || '',
           link: item.querySelector('link')?.textContent || '',
@@ -88,11 +83,11 @@
     hasLoaded = true;
     isLoading = false;
   }
-  
+
   async function loadPageViews() {
     if (isLoadingViews) return;
     isLoadingViews = true;
-    const currentPosts = paginatedPosts;
+    const currentPosts = filteredPostsWithMatches;
 
     // 从 SPA 缓存中读取已有的浏览量，命中则直接显示（无动画）
     const uncachedPosts: typeof currentPosts = [];
@@ -239,36 +234,25 @@
 
     return results;
   });
-  
-  let paginatedPosts = $derived.by(() => {
-    const allResults = filteredPostsWithMatches;
-    const startIndex = (currentPage - 1) * postsPerPage;
-    const endIndex = startIndex + postsPerPage;
-    return allResults.slice(startIndex, endIndex);
-  });
-  
-  let totalPages = $derived(Math.ceil(filteredPostsWithMatches.length / postsPerPage));
-  
-  // 当筛选条件改变时重置到第一页（搜索词修改由 oninput 同步重置）
+
+  // 当筛选条件改变时重置展开状态
   $effect(() => {
     searchFilters.title;
     searchFilters.description;
     searchFilters.content;
     searchFilters.path;
-    currentPage = 1;
-    expandedCards = {}; // 重置展开状态
+    expandedCards = {};
   });
-  
-  // 监听页码变化，加载对应页面的访问量
+
+  // 搜索结果变化时加载浏览量
   $effect(() => {
-    const page = currentPage; // 读取 currentPage 以触发 effect
-    // 使用 setTimeout 避免在同一个 tick 内多次调用
+    const _ = filteredPostsWithMatches;
     const timer = setTimeout(() => {
       loadPageViews();
     }, 0);
     return () => clearTimeout(timer);
   });
-  
+
   let hasAnyFilter = $derived(searchFilters.title || searchFilters.description || searchFilters.content || searchFilters.path);
 
   function formatDate(dateString: string) {
@@ -279,9 +263,9 @@
       day: 'numeric'
     });
   }
-  
+
   import { onMount, tick } from 'svelte';
-  
+
   onMount(() => {
     loadRSS();
   });
@@ -306,11 +290,11 @@
       type="text"
       bind:value={searchQuery}
       onfocus={loadRSS}
-      oninput={() => { currentPage = 1; expandedCards = {}; }}
+      oninput={() => { expandedCards = {}; }}
       placeholder="搜索文章标题、描述或内容..."
       class="w-full"
     />
-    
+
     <div class="mt-3 flex flex-wrap gap-4">
       <label class="flex items-center gap-2 cursor-pointer">
         <Checkbox bind:checked={searchFilters.title} />
@@ -329,7 +313,7 @@
         <span class="text-sm">路径</span>
       </label>
     </div>
-    
+
     {#if searchQuery}
       <div class="mt-2 min-h-[20px]">
         {#if !hasAnyFilter}
@@ -346,7 +330,7 @@
   </div>
 
   <div class="space-y-6 mo-stagger" use:staggerChildren>
-    {#each paginatedPosts as { post, matchedLines }}
+    {#each filteredPostsWithMatches as { post, matchedLines }}
       <a href="/posts/{post.slug}" class="block">
         <Card.Root class="group transition-all hover:shadow-lg">
           <Card.Content>
@@ -362,7 +346,7 @@
                   />
                 </div>
               {/if}
-              
+
               <div class="flex-1">
                 <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-0">
                   {#if post.metadata.pinned}
@@ -381,11 +365,11 @@
                     </span>
                   {/if}
                 </div>
-                
+
                 <h2 class="mb-2 text-2xl font-semibold group-hover:text-primary">
                   {@html highlightText(post.metadata.title, searchQuery)}
                 </h2>
-                
+
                 <p class="text-muted-foreground">
                   {@html highlightText(post.metadata.description, searchQuery)}
                 </p>
@@ -449,65 +433,9 @@
     {/each}
   </div>
 
-  {#if paginatedPosts.length === 0 && !searchQuery}
+  {#if filteredPostsWithMatches.length === 0 && !searchQuery}
     <div class="py-12 text-center">
       <p class="text-muted-foreground">暂无文章</p>
-    </div>
-  {/if}
-  
-  {#if totalPages > 1}
-    <div class="mt-8 flex flex-col items-center gap-4">
-      <Pagination.Root count={filteredPostsWithMatches.length} perPage={postsPerPage} bind:page={currentPage}>
-        {#snippet children({ pages })}
-          <Pagination.Content>
-            <Pagination.Item>
-              <Pagination.PrevButton>
-                {#snippet children()}
-                  <Icon icon="mdi:chevron-left" class="w-4 h-4" />
-                  <span class="hidden sm:inline">上一页</span>
-                {/snippet}
-              </Pagination.PrevButton>
-            </Pagination.Item>
-            {#each pages as page (page.key)}
-              {#if page.type === 'ellipsis'}
-                <Pagination.Item>
-                  <Pagination.Ellipsis />
-                </Pagination.Item>
-              {:else}
-                <Pagination.Item>
-                  <Pagination.Link {page} isActive={currentPage === page.value}>
-                    {page.value}
-                  </Pagination.Link>
-                </Pagination.Item>
-              {/if}
-            {/each}
-            <Pagination.Item>
-              <Pagination.NextButton>
-                {#snippet children()}
-                  <span class="hidden sm:inline">下一页</span>
-                  <Icon icon="mdi:chevron-right" class="w-4 h-4" />
-                {/snippet}
-              </Pagination.NextButton>
-            </Pagination.Item>
-          </Pagination.Content>
-        {/snippet}
-      </Pagination.Root>
-      <div class="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <span>共 {totalPages} 页 / {filteredPostsWithMatches.length} 个，跳至</span>
-        <input
-          type="number"
-          min="1"
-          max={totalPages}
-          class="h-7 w-14 rounded border bg-transparent px-1.5 text-center text-foreground outline-none focus:ring-1 focus:ring-primary"
-          onkeydown={(e) => {
-            if (e.key === 'Enter') {
-              const v = Math.max(1, Math.min(totalPages, Number((e.target as HTMLInputElement).value)));
-              currentPage = v;
-            }
-          }}
-        />
-        <span>页</span>
-      </div>
     </div>
   {/if}
 </div>

@@ -27,6 +27,8 @@ function buildUrl(
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
+  // 任何成功的 API 调用都恢复在线状态（不依赖 health check）
+  if (response.ok) apiStatus.set('online');
   const contentType = response.headers.get('content-type') || '';
   const isJson = contentType.includes('application/json');
   const body = isJson ? await response.json() : await response.text();
