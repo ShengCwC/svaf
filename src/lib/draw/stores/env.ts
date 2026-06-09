@@ -131,12 +131,15 @@ export const drawEnv: DrawEnvStore = createEnvStore();
  * 页面初始化时探测 API 端点（重定向检测），只跑一次，定死。
  * 除非用户手动改了 API 地址强刷页面，否则不再检测。
  */
+let _redirectStarted = false;
 let _redirectResolved = false;
 let _redirectPending: Promise<void> | null = null;
 
 export async function resolveApiRedirect(force = false): Promise<void> {
   if (_redirectResolved && !force) return;
+  if (_redirectStarted && !force) return; // 双重保险：一旦启动就不再重入
   if (_redirectPending) return _redirectPending;
+  _redirectStarted = true;
   _redirectPending = (async () => {
     redirectLogs.set([]);
     apiStatus.set('checking');

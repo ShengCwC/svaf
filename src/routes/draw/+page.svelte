@@ -238,8 +238,11 @@ let ttsTags = $state('');
     return unsub;
   });
 
-  // 页面加载时探测 API 状态
+  // 页面加载时探测 API 状态（仅执行一次）
+  let resolvedOnce = false;
   $effect(() => {
+    if (resolvedOnce) return;
+    resolvedOnce = true;
     resolveApiRedirect();
   });
 
