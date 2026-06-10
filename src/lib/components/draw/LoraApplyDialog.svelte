@@ -180,7 +180,7 @@
           <div class="space-y-1.5">
             <Label class="text-xs">类型 <span class="text-destructive">*</span></Label>
             <div class="flex gap-2">
-              {#each ['Illustrious（WAI）', 'Anim'] as t}
+              {#each ['Illustrious（WAI）', 'Anima'] as t}
                 <button
                   onclick={() => (type = t)}
                   class="flex-1 h-8 text-xs rounded-lg border transition-colors {type === t ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}"
