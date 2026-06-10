@@ -5,7 +5,6 @@
   import { Label } from '$lib/components/ui/label';
   import { Badge } from '$lib/components/ui/badge';
   import * as Dialog from '$lib/components/ui/dialog';
-  import * as Select from '$lib/components/ui/select';
   import { submitLora, getMyLoraSubmissions, cancelLora } from '$lib/draw/api/lora';
   import type { LoraApplication } from '$lib/draw/types';
   import { forumToast } from '$lib/forum/stores/toast';
@@ -180,19 +179,14 @@
           </div>
           <div class="space-y-1.5">
             <Label class="text-xs">类型 <span class="text-destructive">*</span></Label>
-            <Select.Root bind:value={type}>
-              <Select.Trigger class="w-full h-8 text-xs">
-                {#if type}
-                  {type}
-                {:else}
-                  <span class="text-muted-foreground">选择类型</span>
-                {/if}
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="WAI" label="WAI" />
-                <Select.Item value="Anima" label="Anima" />
-              </Select.Content>
-            </Select.Root>
+            <div class="flex gap-2">
+              {#each ['WAI', 'Anima'] as t}
+                <button
+                  onclick={() => (type = t)}
+                  class="flex-1 h-8 text-xs rounded-lg border transition-colors {type === t ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}"
+                >{t}</button>
+              {/each}
+            </div>
           </div>
         </div>
         <div class="space-y-1.5">
