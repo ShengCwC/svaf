@@ -247,18 +247,30 @@ let ttsTags = $state('');
   });
 
   // Tab state — 从 URL hash 恢复，格式: #tab/subtab/subsubtab
-  function parseHash(): { main: string; sub: string; subsub: string } {
-    const parts = (location.hash?.slice(1) || '').split('/');
-    return { main: parts[0] || 'generate', sub: parts[1] || '', subsub: parts[2] || '' };
+  function applyHash(hash: string) {
+    const parts = (hash?.slice(1) || '').split('/');
+    const main = parts[0] || 'generate';
+    const sub = parts[1] || '';
+    const subsub = parts[2] || '';
+    activeTab = main;
+    if (main === 'generate') {
+      genSubTab = ['img2img','txt2img','saloon','tts','video'].includes(sub) ? sub : 'txt2img';
+      if (sub === 'txt2img') genTxtSubTab = ['wai','anima','ernie','real'].includes(subsub) ? subsub : 'wai';
+      else if (sub === 'img2img') imgSubTab = ['flux2','qwen'].includes(subsub) ? subsub : 'flux2';
+    }
   }
-  const initialHash = parseHash();
-  let activeTab = $state(initialHash.main);
-  let genSubTab = $state(['img2img','txt2img','saloon','tts','video'].includes(initialHash.sub) ? initialHash.sub : 'txt2img');
-  let genTxtSubTab = $state(['wai','anima','ernie','real'].includes(initialHash.subsub) ? initialHash.subsub : 'wai');
-  let imgSubTab = $state(['flux2','qwen'].includes(initialHash.subsub) ? initialHash.subsub : 'flux2');
+  applyHash(location.hash);
   let selectedMode = $state(genTxtSubTab);
 
-  // tab/子tab 变化时更新 URL hash
+  // 监听浏览器前进/后退
+  $effect(() => {
+    const handler = () => applyHash(location.hash);
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  });
+
+  // tab/子tab 变化时更新 URL hash（跳过 popstate 导致的变更，避免循环）
+  let prevHash = $state('');
   $effect(() => {
     if (typeof location === 'undefined') return;
     const parts = [activeTab];
@@ -267,7 +279,11 @@ let ttsTags = $state('');
       if (genSubTab === 'txt2img') parts.push(genTxtSubTab);
       else if (genSubTab === 'img2img') parts.push(imgSubTab);
     }
-    history.replaceState(null, '', '#' + parts.join('/'));
+    const hash = '#' + parts.join('/');
+    if (hash !== prevHash) {
+      prevHash = hash;
+      history.replaceState(null, '', hash);
+    }
   });
 
   const state = $derived({ workflowPath, workflowName, styleTags, styleName, directPrompt, negativePrompt, nlPrompt, width, height, forkSeed, sameSeed });

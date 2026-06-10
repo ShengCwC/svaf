@@ -36,12 +36,20 @@ import StatsTab from '$lib/components/draw/StatsTab.svelte';
   let activeTab = $state(location.hash?.slice(1) || 'announcement');
 
   $effect(() => {
-    const h = location.hash?.slice(1);
-    if (h) activeTab = h;
+    const handler = () => {
+      const h = location.hash?.slice(1);
+      if (h) activeTab = h;
+    };
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
   });
 
+  let prevTab = $state('');
   $effect(() => {
-    if (activeTab) history.replaceState(null, '', '#' + activeTab);
+    if (activeTab && activeTab !== prevTab) {
+      prevTab = activeTab;
+      history.replaceState(null, '', '#' + activeTab);
+    }
   });
   let loading = $state(false);
   let clearing = $state(false);
