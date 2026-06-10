@@ -631,8 +631,6 @@ async function startGeneration(mode = 'wai') {
 
   async function loadWalletBalance() {
     if (!isLoggedIn) return;
-    // 先等重定向完成再请求，避免用错 URL
-    await resolveApiRedirect();
     try {
       const r = await fetchWalletBalance();
       walletBalance = r.balance;

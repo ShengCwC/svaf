@@ -56,6 +56,7 @@ export async function drawRequest<T>(
   path: string,
   options: DrawRequestOptions = {}
 ): Promise<T> {
+  await resolveApiRedirect(); // 等重定向完成才发请求，后续调用立即返回
   const headers = new Headers(options.headers);
   const method = (options.method || 'GET').toUpperCase();
   const token = forumAuth.getToken();

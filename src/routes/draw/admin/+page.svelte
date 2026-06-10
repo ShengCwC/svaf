@@ -837,7 +837,6 @@ $effect(() => {
   }
 
   async function loadDebug() {
-    await resolveApiRedirect(); // 等重定向完成再请求
     debugLoading = true;
     debugError = '';
     try {
