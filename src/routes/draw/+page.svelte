@@ -299,7 +299,7 @@ let ttsTags = $state('');
 
   $effect(() => {
     if (isLoggedIn) {
-      loadWalletBalance();
+      resolveApiRedirect().then(() => loadWalletBalance());
       fetchPlans().then(r => plans = r.items).catch(() => {});
       fetchPointsConfig().then(r => pointsConfig = r).catch(() => {});
     } else {
