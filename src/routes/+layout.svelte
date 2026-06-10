@@ -52,11 +52,10 @@
     rafId = requestAnimationFrame(tick);
   });
 
-  // popstate 时初始页 state=null 被 SvelteKit Router 跳过，直接用 reload 兜底
+  // popstate 时 SvelteKit Router 只处理 state.the==='yes'，其余情况手动 reload
   $effect(() => {
-    const cur = () => window.location.pathname + window.location.search;
-    const handler = () => {
-      if ($page.url.pathname + $page.url.search !== cur()) location.reload();
+    const handler = (e: PopStateEvent) => {
+      if (e.state?.the !== 'yes') location.reload();
     };
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
