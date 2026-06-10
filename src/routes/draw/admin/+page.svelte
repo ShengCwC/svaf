@@ -11,7 +11,7 @@
   import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
   import * as Table from '$lib/components/ui/table';
   import { forumAuth } from '$lib/forum/stores/auth';
-  import { drawEnv } from '$lib/draw/stores/env';
+  import { drawEnv, resolveApiRedirect } from '$lib/draw/stores/env';
   import { get } from 'svelte/store';
   import * as admin from '$lib/draw/api/admin';
   import PieChart from '$lib/components/draw/PieChart.svelte';
@@ -301,6 +301,10 @@ $effect(() => {
     authToken = forumAuth.getToken();
     const u = drawEnv.baseUrl.subscribe((v) => (currentBaseUrl = v));
     return u;
+  });
+
+  $effect(() => {
+    resolveApiRedirect();
   });
 
   function showMsg(type: 'success' | 'error', text: string) {
