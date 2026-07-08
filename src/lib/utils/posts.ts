@@ -14,8 +14,17 @@ function fetchAllPosts(): Post[] {
     const slug = path.split('/').slice(-2, -1)[0];
     const mod = module as any;
 
-    // mdsvex 会将 frontmatter 导出为 metadata
-    const metadata = mod.metadata as PostMetadata;
+    // mdsvex 会将 frontmatter 导出为 metadata，合并默认值兜底
+    const rawMetadata = (mod.metadata ?? {}) as Partial<PostMetadata>;
+    const metadata: PostMetadata = {
+      title: rawMetadata.title ?? slug,
+      published: rawMetadata.published ?? new Date().toISOString().split('T')[0],
+      description: rawMetadata.description ?? '',
+      pinned: rawMetadata.pinned ?? false,
+      draft: rawMetadata.draft ?? false,
+      hide: rawMetadata.hide ?? false,
+      ...rawMetadata
+    };
 
     posts.push({
       slug,
