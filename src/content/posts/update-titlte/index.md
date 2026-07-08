@@ -1,6 +1,6 @@
 ---
 title: Update Titlte
-slug: slugggtest
+url_slug: slugtitle
 published: 2026-07-08
 updated: 2026-07-08
 description: Update Titlte
