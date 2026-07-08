@@ -15,8 +15,8 @@ content:
     format: yaml-frontmatter
     extension: md
     filename:
-      template: "{slug}/index.md"
-      field: slug
+      template: "{url_slug}/index.md"
+      field: url_slug
     view:
       primary: title
       fields: [title, published, pinned, draft, description]
@@ -30,11 +30,11 @@ content:
         type: string
         required: true
 
-      - name: slug
-        label: 文章别名 (URL Slug)
+      - name: url_slug
+        label: 文章路径 (URL Slug)
         type: string
         required: true
-        description: 用于 URL 的英文标识，如 "my-first-post"，同时也是文件夹名称
+        description: 手动填写 URL 路径，如 "my-first-post"，同时也是文件夹名称
 
       - name: published
         label: 发布日期
