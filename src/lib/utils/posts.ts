@@ -26,9 +26,21 @@ function fetchAllPosts(): Post[] {
       ...rawMetadata
     };
 
-    // 封面图路径修正：Pages CMS 写入的 static/media/ 转为 /media/
-    if (metadata.image && metadata.image.startsWith('static/media/')) {
-      metadata.image = metadata.image.replace('static/media', '/media');
+    // 封面图路径修正：统一处理 Pages CMS 写入的各种路径格式
+    if (metadata.image) {
+      const img = metadata.image;
+      // 已经是绝对路径或外链：直接用
+      if (img.startsWith('/') || img.startsWith('http://') || img.startsWith('https://')) {
+        // 保持原样
+      }
+      // static/media/ 开头：转为 /media/
+      else if (img.startsWith('static/media/')) {
+        metadata.image = img.replace('static/media', '/media');
+      }
+      // 其他相对路径：视为 media 目录下的文件
+      else if (!img.includes('://')) {
+        metadata.image = `/media/${img.replace(/^media\//, '')}`;
+      }
     }
 
     posts.push({
