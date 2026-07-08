@@ -10,8 +10,9 @@ const CONVERTIBLE_RE = /\.(png|jpe?g|webp)(?=$|[?#])/i;
 
 function rewriteUrl(url) {
   if (typeof url !== 'string') return url;
-  // 仅改写本地相对路径下的 img/ 资源；外链/绝对 URL 不动
+  // 外链、绝对路径（站点根路径）不动，只改写文章内的相对路径图片
   if (/^(https?:)?\/\//i.test(url)) return url;
+  if (url.startsWith('/')) return url;
   if (!CONVERTIBLE_RE.test(url)) return url;
   return url.replace(CONVERTIBLE_RE, '.avif');
 }
