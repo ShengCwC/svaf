@@ -5,9 +5,7 @@
   import { Badge } from '$lib/components/ui/badge';
   import { siteConfig } from '$lib/config/site';
   import ImageViewer from '$lib/components/ImageViewer.svelte';
-  import Giscus from '$lib/components/Giscus.svelte';
   import PostToc from '$lib/components/PostToc.svelte';
-  import PageViews from '$lib/components/PageViews.svelte';
   import { NAV_HEIGHT } from '$lib/constants';
   import { highlightCodeBlocksIn, switchHighlightTheme } from '$lib/utils/highlight';
   import { renderMermaidIn, rerenderAllMermaid } from '$lib/utils/mermaid';
@@ -181,12 +179,6 @@
       <time class="text-sm text-muted-foreground">
         {formatDate(data.post.metadata.published)}
       </time>
-      <PageViews
-        pathname="/posts/{data.slug}/"
-        cacheKey="pv:{data.slug}"
-        class="text-sm text-muted-foreground"
-        prefix="· "
-      />
     </div>
 
     <h1 class="mb-4 text-4xl font-bold">{data.post.metadata.title}</h1>
@@ -227,11 +219,6 @@
   </div>
 
   <PostToc container={proseEl} trigger={data.component} />
-
-  <!-- 评论区 -->
-  <div id="comments">
-    <Giscus />
-  </div>
 
   <!-- 文章底部 -->
   <footer class="mt-12 border-t pt-8">
