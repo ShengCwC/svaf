@@ -4,7 +4,6 @@ url_slug: Hello-World
 published: 2026-07-08
 updated: 2026-07-08
 description: 博客开通后的第一篇文章，欢迎来到我的个人博客。
-image: /media/banner.png
 pinned: false
 draft: false
 hide: false
