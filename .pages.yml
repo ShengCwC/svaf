@@ -3,8 +3,8 @@
 # 适配 SvelteKit mdsvex 博客的文章目录结构
 
 media:
-  input: src/content/media
-  output: /src/content/media
+  input: static/media
+  output: /media
 
 content:
   # ===== 博客文章 =====
