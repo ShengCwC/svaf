@@ -12,7 +12,7 @@ content:
     label: 博客文章
     type: collection
     path: src/content/posts
-    format: frontmatter
+    format: yaml-frontmatter
     extension: md
     filename:
       template: "{slug}/index"
