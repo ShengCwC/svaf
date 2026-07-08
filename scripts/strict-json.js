@@ -39,6 +39,12 @@ function main() {
 	console.log('');
 	console.log('  🔍 扫描 JSON 文件语法...');
 
+	// 目录不存在则跳过
+	if (!fs.existsSync(dir)) {
+		console.log('  ⏭️  src/data 目录不存在，跳过 JSON 校验');
+		return;
+	}
+
 	const files = collectJsonFiles(dir);
 	let fixed = 0;
 	let ok = 0;
