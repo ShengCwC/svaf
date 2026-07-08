@@ -1,12 +1,13 @@
 ---
 title: Hello World
+url_slug: Hello-World
 published: 2026-07-08
+updated: 2026-07-08
 description: 博客开通后的第一篇文章，欢迎来到我的个人博客。
-image:
-draft: false
 pinned: true
+draft: false
+hide: false
 ---
-
 # Hello World 👋
 
 欢迎来到我的个人博客！
@@ -31,9 +32,11 @@ pinned: true
 ## 下一步
 
 你可以：
+
 1. 在 Pages CMS 中编辑或删除这篇示例文章
 2. 创建属于你自己的第一篇博客
 3. 自定义站点名称和头像
+  ![](/media/20200425045844_jqaqz.gif)
 
 ---
 
