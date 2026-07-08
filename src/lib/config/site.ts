@@ -20,7 +20,13 @@ export const siteConfig = {
     links: []
   },
   services: {
-    pageViews: ''
+    umami: {
+      websiteId: '578915b7-1329-458a-8b86-09d1ca5321e2',
+      shareId: 'Mr6O0vTbWl9JTXzY',
+      region: 'us',
+      baseUrl: 'https://cloud.umami.is/analytics',
+      scriptUrl: 'https://cloud.umami.is/script.js'
+    }
   },
   navLinks: [
     { label: '博客', icon: 'mdi:post-outline', href: '/' }

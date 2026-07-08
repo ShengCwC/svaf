@@ -6,6 +6,7 @@
   import { siteConfig } from '$lib/config/site';
   import ImageViewer from '$lib/components/ImageViewer.svelte';
   import PostToc from '$lib/components/PostToc.svelte';
+  import PageViews from '$lib/components/PageViews.svelte';
   import { NAV_HEIGHT } from '$lib/constants';
   import { highlightCodeBlocksIn, switchHighlightTheme } from '$lib/utils/highlight';
   import { renderMermaidIn, rerenderAllMermaid } from '$lib/utils/mermaid';
@@ -179,6 +180,8 @@
       <time class="text-sm text-muted-foreground">
         {formatDate(data.post.metadata.published)}
       </time>
+      <span class="text-muted-foreground/40">·</span>
+      <PageViews path={`/posts/${$page.params.slug}/`} />
     </div>
 
     <h1 class="mb-4 text-4xl font-bold">{data.post.metadata.title}</h1>

@@ -9,6 +9,7 @@
   import DashLoader from '$lib/components/DashLoader.svelte';
   import Toast from '$lib/components/Toast.svelte';
   import Footer from '$lib/components/Footer.svelte';
+  import Analytics from '$lib/components/Analytics.svelte';
 
   let { children } = $props();
 
@@ -103,6 +104,7 @@
 <BackToTop />
 
 <CookieConsent />
+<Analytics />
 
 <DashLoader />
 
