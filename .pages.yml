@@ -15,7 +15,7 @@ content:
     format: yaml-frontmatter
     extension: md
     filename:
-      template: "{slug}/index"
+      template: "{slug}/index.md"
       field: slug
     view:
       primary: title
