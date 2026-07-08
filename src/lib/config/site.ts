@@ -23,7 +23,7 @@ export const siteConfig = {
     pageViews: ''
   },
   navLinks: [
-    { label: '博客', icon: 'mdi:post-outline', href: '/posts' }
+    { label: '博客', icon: 'mdi:post-outline', href: '/' }
   ] as const
 };
 
