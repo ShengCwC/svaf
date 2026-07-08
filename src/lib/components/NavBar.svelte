@@ -45,18 +45,18 @@
 </script>
 
 <nav class="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-  <div class="relative flex h-10 items-center justify-between px-2">
-    <div class="flex items-center gap-1 min-w-0">
+  <div class="relative flex h-14 items-center justify-between px-4 md:px-5">
+    <div class="flex items-center gap-1.5 min-w-0">
       <a href="/" class="shrink-0 hover:opacity-80 transition-opacity" onmouseenter={startSpin} onmouseleave={stopSpin}>
-        <img src={siteConfig.icon} alt="Home" class="h-6 w-6 rounded-full" style="transform: rotate({spinDeg}deg);" />
+        <img src={siteConfig.icon} alt="Home" class="h-8 w-8 rounded-full" style="transform: rotate({spinDeg}deg);" />
       </a>
       {#each crumbs as crumb, i (crumb.href)}
-        <div in:fly={{ x: -8, duration: 300 }} out:fly={{ x: 8, duration: 200 }} class="inline-flex items-center gap-1">
-          <span class="text-muted-foreground/40 shrink-0">/</span>
+        <div in:fly={{ x: -8, duration: 300 }} out:fly={{ x: 8, duration: 200 }} class="inline-flex items-center gap-1.5">
+          <span class="text-lg leading-none text-muted-foreground/40 shrink-0">/</span>
           {#if i < crumbs.length - 1}
-            <a href={crumb.href} class="text-xs text-muted-foreground hover:text-foreground truncate transition-colors shrink min-w-0">{crumb.label}</a>
+            <a href={crumb.href} class="text-sm text-muted-foreground hover:text-foreground truncate transition-colors shrink min-w-0">{crumb.label}</a>
           {:else}
-            <span class="text-xs text-foreground font-medium truncate shrink min-w-0">{crumb.label}</span>
+            <span class="text-sm text-foreground font-medium truncate shrink min-w-0">{crumb.label}</span>
           {/if}
         </div>
       {/each}
