@@ -15,10 +15,10 @@ content:
     format: frontmatter
     extension: md
     filename:
-      template: "{slug}/index.md"
+      template: "{slug}/index"
       field: slug
     view:
-      fields: [title, published, draft, pinned]
+      fields: [title, published, pinned, draft, description]
       sort:
         field: published
         direction: desc
@@ -49,9 +49,9 @@ content:
         description: 文章列表摘要和 SEO meta description
 
       - name: image
-        label: 封面图路径
-        type: string
-        description: 相对文章目录的图片路径，如 img/cover.png
+        label: 封面图
+        type: image
+        description: 文章封面图，上传后路径自动填入
 
       - name: pinned
         label: 置顶
@@ -82,6 +82,17 @@ content:
     path: src/content/announcement/index.md
     format: frontmatter
     fields:
+      - name: enable
+        label: 启用公告
+        type: boolean
+        default: true
+
+      - name: level
+        label: 公告级别
+        type: string
+        default: info
+        description: info / warning / success / error
+
       - name: title
         label: 标题
         type: string
