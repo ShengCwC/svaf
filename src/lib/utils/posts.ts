@@ -26,6 +26,11 @@ function fetchAllPosts(): Post[] {
       ...rawMetadata
     };
 
+    // 封面图路径修正：Pages CMS 写入的 static/media/ 转为 /media/
+    if (metadata.image && metadata.image.startsWith('static/media/')) {
+      metadata.image = metadata.image.replace('static/media', '/media');
+    }
+
     posts.push({
       slug,
       metadata,
