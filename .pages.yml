@@ -75,32 +75,6 @@ content:
         type: rich-text
         required: true
 
-  # ===== 站点公告 =====
-  - name: announcement
-    label: 首页公告
-    type: file
-    path: src/content/announcement/index.md
-    format: frontmatter
-    fields:
-      - name: enable
-        label: 启用公告
-        type: boolean
-        default: true
-
-      - name: level
-        label: 公告级别
-        type: string
-        default: info
-        description: info / warning / success / error
-
-      - name: title
-        label: 标题
-        type: string
-
-      - name: body
-        label: 公告内容
-        type: rich-text
-
 # ===== 全局设置 =====
 settings:
   merge: direct
