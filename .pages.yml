@@ -1,0 +1,97 @@
+# Pages CMS Configuration
+# https://pagescms.org/docs/configuration/
+# 适配 SvelteKit mdsvex 博客的文章目录结构
+
+media:
+  input: src/content/media
+  output: /src/content/media
+
+content:
+  # ===== 博客文章 =====
+  - name: posts
+    label: 博客文章
+    type: collection
+    path: src/content/posts
+    format: frontmatter
+    extension: md
+    filename:
+      template: "{slug}/index.md"
+      field: slug
+    view:
+      fields: [title, published, draft, pinned]
+      sort:
+        field: published
+        direction: desc
+    fields:
+      - name: title
+        label: 标题
+        type: string
+        required: true
+
+      - name: slug
+        label: 文章别名 (URL Slug)
+        type: string
+        required: true
+        description: 用于 URL 的英文标识，如 "my-first-post"，同时也是文件夹名称
+
+      - name: published
+        label: 发布日期
+        type: date
+        required: true
+
+      - name: updated
+        label: 更新日期
+        type: date
+
+      - name: description
+        label: 摘要描述
+        type: text
+        description: 文章列表摘要和 SEO meta description
+
+      - name: image
+        label: 封面图路径
+        type: string
+        description: 相对文章目录的图片路径，如 img/cover.png
+
+      - name: pinned
+        label: 置顶
+        type: boolean
+        default: false
+
+      - name: draft
+        label: 草稿
+        type: boolean
+        default: false
+        description: 开启后文章不会在列表中显示
+
+      - name: hide
+        label: 隐藏
+        type: boolean
+        default: false
+        description: 隐藏文章（有直接链接仍可访问）
+
+      - name: body
+        label: 正文
+        type: rich-text
+        required: true
+
+  # ===== 站点公告 =====
+  - name: announcement
+    label: 首页公告
+    type: file
+    path: src/content/announcement/index.md
+    format: frontmatter
+    fields:
+      - name: title
+        label: 标题
+        type: string
+
+      - name: body
+        label: 公告内容
+        type: rich-text
+
+# ===== 全局设置 =====
+settings:
+  merge: direct
+  commit:
+    message: "content: update {type} — {name}"

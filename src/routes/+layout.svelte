@@ -1,18 +1,14 @@
 <script lang="ts">
   import '../app.css';
-  import '../app.css';
   import { page } from '$app/stores';
   import { beforeNavigate, afterNavigate } from '$app/navigation';
   import { siteConfig } from '$lib/config/site';
   import BackToTop from '$lib/components/BackToTop.svelte';
   import NavBar from '$lib/components/NavBar.svelte';
-  import Analytics from '$lib/components/Analytics.svelte';
   import CookieConsent from '$lib/components/CookieConsent.svelte';
-  import ShortLinkRedirect from '$lib/components/ShortLinkRedirect.svelte';
   import DashLoader from '$lib/components/DashLoader.svelte';
   import Toast from '$lib/components/Toast.svelte';
   import Footer from '$lib/components/Footer.svelte';
-  import PageViews from '$lib/components/PageViews.svelte';
 
   let { children } = $props();
 
@@ -102,21 +98,11 @@
   {@render children()}
 </div>
 
-{#if !$page.url.pathname.startsWith('/posts/')}
-  <div class="text-center py-4">
-    <PageViews pathname={$page.url.pathname} class="text-xs text-muted-foreground" />
-  </div>
-{/if}
-
 <Footer />
 
 <BackToTop />
 
-<Analytics />
-
 <CookieConsent />
-
-<ShortLinkRedirect />
 
 <DashLoader />
 
