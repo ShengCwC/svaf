@@ -33,7 +33,12 @@
     let accumulated = '';
     for (let i = 0; i < parts.length; i++) {
       accumulated += '/' + parts[i];
-      result.push({ label: parts[i], href: accumulated });
+      // 文章路径下的 posts 层替换为指向首页的「博客」
+      if (parts[i] === 'posts' && i === 0) {
+        result.push({ label: '公告', href: '/' });
+      } else {
+        result.push({ label: parts[i], href: accumulated });
+      }
     }
     return result;
   });

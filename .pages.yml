@@ -18,10 +18,12 @@ content:
       template: "{slug}/index"
       field: slug
     view:
+      primary: title
       fields: [title, published, pinned, draft, description]
       sort:
         field: published
         direction: desc
+      search: true
     fields:
       - name: title
         label: 标题
