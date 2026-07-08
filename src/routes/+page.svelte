@@ -9,6 +9,7 @@
   import { staggerChildren } from '$lib/utils/motion';
   import { quintOut } from 'svelte/easing';
   import { spaCache } from '$lib/utils/spaCache';
+  import { fetchPageViewsBatch } from '$lib/utils/pageViews';
   import { onMount, tick } from 'svelte';
   import type { PageData } from './$types';
 
@@ -91,7 +92,7 @@
     const currentPosts = filteredPostsWithMatches;
 
     // 从 SPA 缓存中读取已有的浏览量，命中则直接显示（无动画）
-    const uncachedPosts: typeof currentPosts = [];
+    const uncachedPosts: Array<{ post: (typeof currentPosts)[number]['post'] }> = [];
     const viewsMap: Record<string, number> = { ...pageViews };
     for (const { post } of currentPosts) {
       const cached = spaCache.peek<number>(`pv:${post.slug}`);
@@ -110,31 +111,24 @@
     }
     const pathnames = uncachedPosts.map(({ post }) => `/posts/${post.slug}/`);
     try {
-      const response = await fetch(siteConfig.services.pageViews, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify(pathnames)
+      const views = await fetchPageViewsBatch(pathnames);
+      const newSlugs: string[] = [];
+      uncachedPosts.forEach(({ post }, index) => {
+        const v = views[index] || 0;
+        viewsMap[post.slug] = v;
+        spaCache.set(`pv:${post.slug}`, v);
+        newSlugs.push(post.slug);
       });
-      if (response.ok) {
-        const views = await response.json() as number[];
-        const newSlugs: string[] = [];
-        uncachedPosts.forEach(({ post }, index) => {
-          const v = views[index] || 0;
-          viewsMap[post.slug] = v;
-          spaCache.set(`pv:${post.slug}`, v);
-          newSlugs.push(post.slug);
-        });
-        // 先让 {#if} 初始为 false，再设置数据触发 transition
-        for (const slug of newSlugs) {
-          delete pageViews[slug];
-        }
-        pageViews = { ...pageViews };
-        await tick();
-        for (const slug of newSlugs) {
-          pageViews[slug] = viewsMap[slug];
-        }
-        pageViews = { ...pageViews };
+      // 先让 {#if} 初始为 false，再设置数据触发 transition
+      for (const slug of newSlugs) {
+        delete pageViews[slug];
       }
+      pageViews = { ...pageViews };
+      await tick();
+      for (const slug of newSlugs) {
+        pageViews[slug] = viewsMap[slug];
+      }
+      pageViews = { ...pageViews };
     } catch (e) {
       console.error(e);
     } finally {
