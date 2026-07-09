@@ -11,6 +11,11 @@
         隐私与协议设置
       </a>
     </div>
-    <p>&copy; {new Date().getFullYear()} {siteConfig.bio.name}</p>
+    <p>
+      &copy; {new Date().getFullYear()}
+      <a href={siteConfig.author.url} class="hover:text-foreground transition-colors">
+        {siteConfig.bio.name}
+      </a>
+    </p>
   </div>
 </footer>

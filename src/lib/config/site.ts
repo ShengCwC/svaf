@@ -10,14 +10,14 @@ export const siteConfig = {
   lang: 'zh_CN',
   ogImage: '/favicon.svg',
   author: {
-    name: 'Author',
-    url: 'https://annoucement.screenshare.cn'
+    name: 'Undefined SS Community',
+    url: 'https://kook.screenshare.cn'
   },
   bio: {
     avatar: '/favicon.svg',
-    name: 'Author',
+    name: 'Undefined SS Community',
     bio: '',
-    links: []
+    links: ['https://kook.screenshare.cn']
   },
   services: {
     umami: {
