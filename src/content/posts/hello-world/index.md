@@ -17,14 +17,14 @@ hide: false
 
 - 我们正在构建大型的中国《Minecraft》及更多游戏的查端社区，为我们合作伙伴提供稳定丶高效丶准确的查端服务
 - KOOK频道：[kook.screenshare.cn](http://kook.screenshare.cn)
-- **任何合作(含比赛)** 及 **社区相关问题**请联系 青颓7cn 或 [Sheng](https://qm.qq.com/q/v3KyWZV54I) 进行处理❤️
+- **任何合作(含比赛)** 及 **社区相关问题**请联系 [青颓7cn](https://qm.qq.com/q/toNCvBDz0W) 或 [Sheng](https://qm.qq.com/q/v3KyWZV54I) 进行处理❤️
 
 ## 关于网站
 
 - 基于 **SvelteKit** 构建
--  **中国大陆** 地区优选节点，大陆境内可稳定高速访问
-- 高防服务器，7*24h稳定在线
-- 稳定维护丶更新
+- 中国大陆地区**优选节点**，大陆境内可稳定高速访问
+- **高防服务器**，7*24h稳定在线
+- **稳定更新**重要内容
 
 
 
