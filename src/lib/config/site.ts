@@ -1,12 +1,12 @@
 export const siteConfig = {
-  name: 'Blog',
-  siteName: 'My Blog',
-  title: '个人博客',
-  subtitle: '',
+  name: '社区动态',
+  siteName: 'Undefined SS Community',
+  title: 'Undefined SS Community',
+  subtitle: '最新公告与发布说明 / 了解我们的最新进展',
   url: 'https://annoucement.screenshare.cn',
   icon: '/favicon.svg',
-  description: '一个基于 SvelteKit 构建的个人博客',
-  keywords: ['博客', 'Blog', 'SvelteKit', '个人博客'],
+  description: '最新公告与发布说明 / 了解我们的最新进展',
+  keywords: ['社区动态', '公告', '发布说明', 'Undefined SS Community'],
   lang: 'zh_CN',
   ogImage: '/favicon.svg',
   author: {

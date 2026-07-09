@@ -271,8 +271,8 @@
 
 <div class="container mx-auto max-w-4xl px-4 py-12">
   <div class="mb-12 text-center">
-    <h1 class="mb-4 text-4xl font-bold">{siteConfig.title}</h1>
-    <p class="text-muted-foreground">{siteConfig.description}</p>
+    <h1 class="mb-4 text-4xl font-bold">{siteConfig.name}</h1>
+    <p class="text-muted-foreground">{siteConfig.subtitle}</p>
     <p class="mt-2 text-sm text-muted-foreground">
       共 {data.totalPosts} 篇文章 · 总计 {data.totalWords.toLocaleString()} 字
     </p>
