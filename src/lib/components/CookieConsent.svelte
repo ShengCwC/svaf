@@ -25,7 +25,6 @@
   let overlayContent = $state<string | null>(null);
   let readAgreement = $state(false);
   let readPrivacy = $state(false);
-  let canAgree = $derived(readAgreement && readPrivacy);
 
   const STORAGE_KEY = 'cookie-consent-preferences';
   const CONSENT_VERSION = '2.0';
@@ -149,19 +148,12 @@
             </p>
 
       <label class="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
-        <Checkbox bind:checked={agreed} disabled={!canAgree} class="mt-0.5" />
+        <Checkbox bind:checked={agreed} class="mt-0.5" />
         <div class="text-xs space-y-1">
           <span>我已阅读并同意</span>
           <button type="button" class="text-primary underline hover:text-primary/80" onclick={() => overlayContent = 'agreement'}>《用户协议》</button>
           <span>和</span>
         <button type="button" class="text-primary underline hover:text-primary/80" onclick={() => overlayContent = 'privacy'}>《隐私政策》</button>
-      </div>
-      <div class="text-[10px] {canAgree ? 'text-green-600' : 'text-red-500'}">
-        {#if canAgree}
-          已完整阅读以上协议 ✓
-        {:else}
-          您还需要完整阅读{!readAgreement ? '《用户协议》' : ''}{!readAgreement && !readPrivacy ? '和' : ''}{!readPrivacy ? '《隐私政策》' : ''}后方可勾选该复选框
-        {/if}
       </div>
     </label>
 
@@ -197,19 +189,12 @@
 
     <div class="space-y-6 py-4">
             <label class="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
-              <Checkbox bind:checked={agreed} disabled={!canAgree} class="mt-0.5" />
+              <Checkbox bind:checked={agreed} class="mt-0.5" />
               <div class="text-xs space-y-1">
                 <span>我已阅读并同意</span>
                 <button type="button" class="text-primary underline hover:text-primary/80" onclick={() => overlayContent = 'agreement'}>《用户协议》</button>
                 <span>和</span>
                 <button type="button" class="text-primary underline hover:text-primary/80" onclick={() => overlayContent = 'privacy'}>《隐私政策》</button>
-              </div>
-              <div class="text-[10px] {canAgree ? 'text-green-600' : 'text-red-500'}">
-                {#if canAgree}
-                  已完整阅读以上协议 ✓
-                {:else}
-                  您还需要完整阅读{!readAgreement ? '《用户协议》' : ''}{!readAgreement && !readPrivacy ? '和' : ''}{!readPrivacy ? '《隐私政策》' : ''}后方可勾选该复选框
-                {/if}
               </div>
             </label>
 
